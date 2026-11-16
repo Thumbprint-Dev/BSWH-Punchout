@@ -94,7 +94,10 @@ four51.app.factory('SiteConfig', ['$http', '$log', '$document', function($http, 
 			retailLabel: 'Retail',
 			saleLabel: 'Your price',
 			savingsText: 'You saved {amount}!',
-			overrides: []
+			overrides: [],
+			// Per-unit dollar savings by product: { "SKU or InteropID": 2.24 }. Keys lowercased.
+			// A product listed here uses its amount and ignores every percentage.
+			productSavings: {}
 		},
 		// Applied to the hero element by ngStyle; recomputed whenever the file lands.
 		heroStyle: {}
@@ -236,6 +239,21 @@ four51.app.factory('SiteConfig', ['$http', '$log', '$document', function($http, 
 		});
 		var pct = percent(value.discountPercent, 'comparePricing.discountPercent');
 		if (pct !== null) output.discountPercent = pct;
+		if (value.productSavings !== undefined) {
+			if (!angular.isObject(value.productSavings) || angular.isArray(value.productSavings)) {
+				$log.warn('SiteConfig: comparePricing.productSavings must be an object like { "ABC-123": 2.24 }, ignoring');
+			} else {
+				angular.forEach(value.productSavings, function(amount, id) {
+					if (id.charAt(0) === '_') return;
+					var n = angular.isString(amount) && amount.trim() !== '' ? Number(amount.replace(/^\$/, '')) : amount;
+					if (typeof n !== 'number' || isNaN(n) || n < 0) {
+						$log.warn('SiteConfig: comparePricing.productSavings["' + id + '"] must be a dollar amount of 0 or more, skipping it -- ' + angular.toJson(amount));
+						return;
+					}
+					output.productSavings[id.trim().toLowerCase()] = n;
+				});
+			}
+		}
 		if (value.overrides !== undefined && !angular.isArray(value.overrides)) {
 			$log.warn('SiteConfig: comparePricing.overrides must be a list, ignoring');
 		} else {

@@ -102,14 +102,24 @@ four51.app.directive('pricescheduletable', function() {
             // product shows no price at all until it's opened. Unit prices normally; for a
             // restricted-quantity schedule the table lists pack totals, so the cheapest pack.
             $scope.fromPrice = function() {
-                var ps = $scope.ps, min = null;
+                var pb = cheapestBreak();
+                return pb ? pb.Price * ($scope.ps.RestrictedQuantity ? pb.Quantity : 1) : null;
+            };
+            // How many units fromPrice() covers - the pack size for a restricted-quantity schedule,
+            // otherwise 1 - so a per-unit dollar saving (comparePricing.productSavings) scales.
+            $scope.fromUnits = function() {
+                var pb = cheapestBreak();
+                return pb && $scope.ps.RestrictedQuantity ? pb.Quantity : 1;
+            };
+            function cheapestBreak() {
+                var ps = $scope.ps, best = null, min = null;
                 if (!ps || !ps.PriceBreaks) return null;
                 angular.forEach(ps.PriceBreaks, function(pb) {
                     var shown = pb.Price * (ps.RestrictedQuantity ? pb.Quantity : 1);
-                    if (min === null || shown < min) min = shown;
+                    if (min === null || shown < min) { min = shown; best = pb; }
                 });
-                return min;
-            };
+                return best;
+            }
         }]
     };
 

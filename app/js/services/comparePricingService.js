@@ -6,7 +6,10 @@
 // retail = price / (1 - discountPercent / 100), rounded to the cent. At 15%, $10.00 shows a
 // retail price of $11.76. Order savings are each line's retail total minus its real total.
 //
-// Which percentage applies uses the same rules as price notes: an override naming the product
+// A product listed in productSavings instead gets a fixed per-unit dollar saving: retail = price +
+// amount for one unit, + amount x units for a line or pack. It ignores every percentage.
+//
+// Otherwise, which percentage applies uses the same rules as price notes: an override naming the product
 // (InteropID or SKU) beats one naming a category the product is in, which beats the site-wide
 // discountPercent; ties go to the override listed first. 0 means no retail price for that product.
 // Category overrides need CategoryProducts lookups; until they land, products that might match
@@ -71,22 +74,39 @@ four51.app.factory('ComparePricing', ['SiteConfig', 'CategoryProducts', '$q', '$
 		return pct > 0 ? pct / 100 : null;
 	}
 
-	function retailFrom(amount, discount) {
-		if (discount === null || !(amount > 0)) return null;
-		return round(amount / (1 - discount));
+	// The product's per-unit dollar saving from productSavings, or null if it isn't listed.
+	function savingsAmountFor(product) {
+		var cfg = config();
+		if (!cfg || !cfg.enabled || !product || !cfg.productSavings) return null;
+		var interop = (product.InteropID || '').toLowerCase();
+		var sku = (product.ExternalID || '').toLowerCase();
+		var amount = cfg.productSavings.hasOwnProperty(sku) && sku ? cfg.productSavings[sku]
+			: cfg.productSavings.hasOwnProperty(interop) && interop ? cfg.productSavings[interop] : null;
+		return amount > 0 ? amount : null;
 	}
 
-	// Struck-through retail price for a real price shown next to it (a unit price, a price
-	// break, a line total), or null when none should show.
-	function retail(price, product) {
+	// Retail value of a real amount covering `units` units of the product: the per-unit dollar
+	// saving times units when the product has one, otherwise the percentage. Null when none.
+	function retailFor(amount, product, units) {
+		if (!(amount > 0)) return null;
+		var perUnit = savingsAmountFor(product);
+		if (perUnit !== null) return round(amount + perUnit * (units > 0 ? units : 1));
+		var discount = discountFor(product);
+		return discount === null ? null : round(amount / (1 - discount));
+	}
+
+	// Struck-through retail price for a real price shown next to it, or null when none should
+	// show. units: how many units that price covers - 1 for a unit price (the default), the
+	// line's Quantity for a line total, the pack size for a restricted-quantity price break.
+	function retail(price, product, units) {
 		if (!config().showRetailPrice) return null;
-		return retailFrom(price, discountFor(product));
+		return retailFor(price, product, units);
 	}
 
 	// "Your price" label for products that have a retail price, or '' when none should show.
 	function saleLabel(product) {
 		var cfg = config();
-		return cfg.showSaleLabel && discountFor(product) !== null ? cfg.saleLabel : '';
+		return cfg.showSaleLabel && (savingsAmountFor(product) !== null || discountFor(product) !== null) ? cfg.saleLabel : '';
 	}
 
 	function retailLabel() {
@@ -100,7 +120,7 @@ four51.app.factory('ComparePricing', ['SiteConfig', 'CategoryProducts', '$q', '$
 		var total = 0;
 		angular.forEach(order.LineItems, function(li) {
 			if (li.IsKitParent && li.KitIsInvalid) return;
-			var retailTotal = retailFrom(li.LineTotal, discountFor(li.Product));
+			var retailTotal = retailFor(li.LineTotal, li.Product, li.Quantity);
 			if (retailTotal !== null) total += retailTotal - li.LineTotal;
 		});
 		total = round(total);
