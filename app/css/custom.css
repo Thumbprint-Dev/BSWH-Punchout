@@ -1359,6 +1359,13 @@ body {
     font-size: 1em;
 }
 
+/* Product cards: the card price is only 14px, so the retail price matches its size (still muted
+   and regular weight). At equal size the two share a baseline, so no lift is needed. */
+.mt-product-card .mt-retail-price {
+    font-size: 1em;
+    vertical-align: baseline;
+}
+
 .mt-order-savings {
     display: flex;
     align-items: center;
