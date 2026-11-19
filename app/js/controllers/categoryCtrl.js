@@ -1,6 +1,13 @@
-four51.app.controller('CategoryCtrl', ['$routeParams', '$sce', '$scope', '$rootScope', '$451', 'Category', 'Product', 'AppConst', 'Order', 'User', '$modal', 'ProductDisplayService', 'FeatureFlags',
-function ($routeParams, $sce, $scope, $rootScope, $451, Category, Product, AppConst, Order, User, $modal, ProductDisplayService, FeatureFlags) {
+four51.app.controller('CategoryCtrl', ['$routeParams', '$sce', '$scope', '$rootScope', '$451', 'Category', 'Product', 'AppConst', 'Order', 'User', '$modal', 'ProductDisplayService', 'FeatureFlags', 'CategoryPath',
+function ($routeParams, $sce, $scope, $rootScope, $451, Category, Product, AppConst, Order, User, $modal, ProductDisplayService, FeatureFlags, CategoryPath) {
 	$scope.isHome = !$routeParams.categoryInteropID;
+
+	// Breadcrumb trail above the category title: this category's parents, then the category
+	// itself (categoryPathService.js). Empty until the nav tree loads, or for a category that
+	// isn't in the nav - the template then shows just the category's own name after Home.
+	$scope.categoryPath = function() {
+		return CategoryPath.get($scope.tree, $routeParams.categoryInteropID);
+	};
 
 	// Dummy feature flag `test` -- the controller-side example (see "Feature flags" in
 	// THEME-DEVELOPMENT-NOTES.md). The template-side example is in categoryView.html's hero.

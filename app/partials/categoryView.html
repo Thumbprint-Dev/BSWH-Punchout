@@ -82,7 +82,13 @@
 
 <section ng-if="!isHome" class="mt-plp">
     <div class="mt-container mt-plp-header">
-        <p class="mt-breadcrumb"><span ng-bind-html="currentCategory.Name || ('Categories' | r | xlat)"></span></p>
+        <!-- Home / parent categories (links) / this category. Falls back to Home / this category's
+             name when it isn't in the nav tree (categoryPath() empty). -->
+        <nav class="mt-breadcrumb" aria-label="{{'Breadcrumb' | r | xlat}}">
+            <a href="catalog">{{'Home' | r | xlat}}</a>
+            <span ng-repeat="cat in categoryPath()"> / <a ng-if="!$last" ng-href="catalog/{{cat.InteropID}}" ng-bind-html="cat.Name"></a><span ng-if="$last" aria-current="page" ng-bind-html="cat.Name"></span></span>
+            <span ng-if="!categoryPath().length && currentCategory.Name"> / <span aria-current="page" ng-bind-html="currentCategory.Name"></span></span>
+        </nav>
         <h1 id="451_lbl_curcat" ng-bind-html="currentCategory.Name || ('Categories' | r | xlat)"></h1>
         <!-- site.json categoryMessages: zero or more bars for this category, plain text only. -->
         <div class="mt-category-message mt-category-message--{{msg.style}}" role="note" ng-repeat="msg in categoryMessages()">
