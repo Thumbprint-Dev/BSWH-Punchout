@@ -1960,7 +1960,14 @@ body {
     margin: 0;
 }
 
+/* The stock 451 CSS gives each field's inner div a 35px top margin and floats its label above it
+   (position: absolute; top: -20px). Put the label back in the flow so the grid lines up. */
+.mt-pdt .mtv .view-form-icon > div {
+    margin-top: 0;
+}
+
 .mt-pdt .mtv .view-form-icon label {
+    position: static;
     display: block;
     margin: 0 0 6px;
     padding-right: 44px;
@@ -1986,6 +1993,36 @@ body {
     height: 44px;
     padding: 0 12px;
     font-size: 15px;
+}
+
+/* Prefix/suffix boxes from the spec (e.g. an email field ending "@fairwinds.org"). */
+.mt-pdt .mtv .input-group {
+    width: 100%;
+}
+
+.mt-pdt .mtv .input-group-addon {
+    border: 1px solid var(--mt-color-border);
+    background: var(--mt-color-bg);
+    color: var(--mt-color-muted);
+    font-size: 14px;
+}
+
+.mt-pdt .mtv .input-group-addon:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+.mt-pdt .mtv .input-group-addon:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.mt-pdt .mtv .input-group .form-control:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.mt-pdt .mtv .input-group .form-control:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .mt-pdt .mtv .view-form-icon textarea.form-control {

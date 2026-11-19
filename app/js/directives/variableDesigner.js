@@ -64,9 +64,12 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 		return field.tag === 'customtextfield' && spec.ControlType === 'Text' && !(spec.Lines > 1);
 	}
 
+	// A phone extension: named or labelled "ext"/"extension" at the end (Phone_EXT, "ext.").
+	var EXTENSION = /(^|[^a-z])ext(ension)?\.?$/i;
+
 	function baseSpan(field, spec) {
 		if (isShortText(field, spec)) {
-			if (spec.MaxLength > 0 && spec.MaxLength <= 10) return 2;
+			if ((spec.MaxLength > 0 && spec.MaxLength <= 10) || EXTENSION.test(field.name) || EXTENSION.test(labelOf(field, spec))) return 2;
 			return labelOf(field, spec).length > 30 ? 6 : 3;
 		}
 		if (field.tag === 'ocmaskfield' || field.tag === 'customphonefield') return 3;
@@ -90,17 +93,11 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 			row = [];
 			used = 0;
 		}
-		angular.forEach(fields, function(f) {
-			if (used + f.span > 6) {
-				if (f.span <= 2 && row.length > 1) {
-					var previous = row.pop();
-					used -= previous.span;
-					close();
-					row = [previous];
-					used = previous.span;
-				}
-				else close();
-			}
+		angular.forEach(fields, function(f, i) {
+			// Keep room for a narrow field that follows, so it lands beside this one.
+			var next = fields[i + 1];
+			var need = f.span + (f.span > 2 && next && next.span <= 2 ? next.span : 0);
+			if (used + need > 6) close();
 			row.push(f);
 			used += f.span;
 			if (used === 6) close();
