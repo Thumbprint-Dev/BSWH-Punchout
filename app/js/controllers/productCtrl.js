@@ -16,6 +16,16 @@ function ($scope, $rootScope, $routeParams, $route, $location, $451, Product, Pr
         return CategoryPath.get($scope.tree, $location.search().cat);
     };
 
+    // Variable products get the inline design panel (variableDesigner.js) instead of the saved-design
+    // list and the separate spec-form page. Editing a line item on an order awaiting approval keeps
+    // the old flow. Undefined in other controllers that reuse the PDT (LineItemEditCtrl), which the
+    // PDT reads as "no panel".
+    $scope.useDesigner = function() {
+        var p = $scope.LineItem && $scope.LineItem.Product;
+        return !!(p && p.Type == 'VariableText' && !$scope.isEditforApproval &&
+            !($scope.currentOrder && $scope.currentOrder.Status == 'AwaitingApproval'));
+    };
+
     $scope.selected = 1;
     $scope.LineItem = {};
 	$scope.addToOrderText = "Add To Cart";

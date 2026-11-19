@@ -14,6 +14,10 @@
   note for this product, or null - shown under the price or above the add button per placement.
   Compare pricing: $root.comparePricing (comparePricingService.js) gives the "Your price" label and
   the struck-through retail price from site.json comparePricing; both are blank when it's off.
+  Variable products: where useDesigner() (productCtrl.js) is true, <variabledesigner> (variableDesigner.js)
+  replaces the saved-design list and the order-time spec form, and the quantity + Add To Cart below it
+  become the foot of its card. design.* comes from that directive. useDesigner is undefined in other
+  controllers that reuse this template, so they keep the old layout.
   quantityfield, addtoorderspecs, priceScheduleTable, staticSpecsTable, relatedproducts and productnav are
   separate directives whose own templates live in app/partials/ and ARE git-deployed - restyle those there.
 
@@ -44,7 +48,17 @@
                     <productlightbox></productlightbox>
                 </div>
 
-                <div class="mt-pdt-variant-actions" ng-show="LineItem.Product.Type=='VariableText' && LineItem.Variant">
+                <!-- Design panel: View PDF / Edit design under the proof. -->
+                <div class="mt-pdt-variant-actions" ng-if="useDesigner() && LineItem.Variant && !design.editing">
+                    <button type="button" class="mt-header-btn" ng-click="getPdf(LineItem.Variant.ProofUrl)">
+                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i> {{('View' | r) + ' ' + ('PDF' | r) | xlat}}
+                    </button>
+                    <button type="button" class="mt-header-btn" ng-click="design.edit()">
+                        <i class="fa fa-pencil" aria-hidden="true"></i> {{'Edit design' | r | xlat}}
+                    </button>
+                </div>
+
+                <div class="mt-pdt-variant-actions" ng-show="LineItem.Product.Type=='VariableText' && LineItem.Variant && !useDesigner()">
                     <button ng-if="currentOrder.Status != 'AwaitingApproval' && !EditingLineItem" class="mt-header-btn" redirect="/product/{{LineItem.Product.InteropID}}/{{LineItem.Variant.InteropID}}/edit">
                         {{'Edit' | r | xlat}}
                     </button>
@@ -59,7 +73,6 @@
                     </button>
                 </div>
 
-                <productnav product="LineItem.Product" variant="LineItem.Variant" class="mt-variant-breadcrumb"></productnav>
             </div>
 
             <!-- PRODUCT INFO / ORDER PANEL -->
@@ -100,7 +113,7 @@
                     </div>
 
                     <!-- VARIANT LIST -->
-                    <div ng-if="!LineItem.Variant" class="mt-variant-list-wrap">
+                    <div ng-if="!LineItem.Variant && !useDesigner()" class="mt-variant-list-wrap">
                         <div class="row">
                             <div class="col-xs-9" ng-show="(allowAddToOrder && LineItem.Product.Variants.length > 0) || canCreateVariant">
                                 <h2 class="mt-eyebrow">{{('Product' | r) + ' ' + ('Variants' | r) | xlat}}</h2>
@@ -148,10 +161,13 @@
                         </div>
                     </div>
 
-                    <ordertypeselector ng-show="(canAddToStandardOrder && canAddToReplenishmentOrder && !currentOrder.ID) && !isComingSoon()"></ordertypeselector>
-                    <addtoorderspecs ng-show="allowAddToOrder && !isComingSoon()"></addtoorderspecs>
+                    <!-- DESIGN PANEL (variable products) -->
+                    <variabledesigner></variabledesigner>
 
-                    <div class="mt-order-actions" ng-show="allowAddToOrder">
+                    <ordertypeselector ng-show="(canAddToStandardOrder && canAddToReplenishmentOrder && !currentOrder.ID) && !isComingSoon()"></ordertypeselector>
+                    <addtoorderspecs ng-if="!useDesigner()" ng-show="allowAddToOrder && !isComingSoon()"></addtoorderspecs>
+
+                    <div class="mt-order-actions" ng-show="allowAddToOrder && (!useDesigner() || (LineItem.Variant && !design.editing))" ng-class="{'mtv-card-foot': useDesigner()}">
                         <p class="mt-pdp-meta" ng-show="LineItem.Product.DisplayInventory && !isComingSoon() && (LineItem.Variant || LineItem.Product.Variants.length == 0) && isInventoryTracked(LineItem.Product, LineItem.Variant)">
                             {{'Quantity Available' | r | xlat}}: {{inventoryDisplay(LineItem.Product, LineItem.Variant)}}
                         </p>
@@ -175,9 +191,9 @@
                         <button class="mt-btn-accent mt-pdt-add-btn" type="button" disabled="disabled" ng-if="isComingSoon()">
                             {{'Coming Soon' | r | xlat}}
                         </button>
-                        <button class="mt-btn-accent mt-pdt-add-btn" type="button" id="451_btn_orderadd" ng-click="addToOrder()" ng-disabled="outOfInventory()" ng-if="!isComingSoon() && !comingSoonPending()">
+                        <button class="mt-btn-accent mt-pdt-add-btn" type="button" id="451_btn_orderadd" ng-click="addToOrder()" ng-disabled="outOfInventory() || design.proofPending()" ng-if="!isComingSoon() && !comingSoonPending()">
                             <loadingindicator ng-show="addToOrderIndicator"></loadingindicator>
-                            <i ng-show="lineItemErrors.length > 0 && !outOfInventory()" class="fa fa-warning"></i>
+                            <i ng-show="lineItemErrors.length > 0 && !outOfInventory() && !design.proofPending()" class="fa fa-warning"></i>
                             <span ng-if="outOfInventory()">{{'Out of Stock' | r | xlat}}</span>
                             <span ng-if="!outOfInventory()">
                                 {{addToOrderText | r | xlat}}
@@ -186,6 +202,7 @@
                                 </span>
                             </span>
                         </button>
+                        <p class="mtv-reason" ng-if="design.proofPending() && !isComingSoon()">{{'Confirm your proof to add to cart' | r | xlat}}</p>
                     </div>
                 </form>
 

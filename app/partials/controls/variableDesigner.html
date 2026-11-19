@@ -1,0 +1,131 @@
+<!-- Design panel for variable products (js/directives/variableDesigner.js). Styles: custom.css, "mtv-". -->
+<div class="mtv" ng-if="design.active">
+
+    <!-- STEP 1: create a design, pick a saved one, or edit the current one -->
+    <div class="mtv-card" ng-if="!LineItem.Variant || design.editing">
+        <div class="mtv-top">
+            <h2 class="mtv-title" ng-if="design.editing">{{'Edit your design' | r | xlat}}</h2>
+            <h2 class="mtv-title" ng-if="!design.editing && design.mode != 'previous'">{{'Create your design' | r | xlat}}</h2>
+            <h2 class="mtv-title" ng-if="!design.editing && design.mode == 'previous'">{{'Choose a previous design' | r | xlat}}</h2>
+            <ol class="mtv-steps">
+                <li ng-class="design.step(1)"><span class="mtv-step-n">1</span>{{'Design' | r | xlat}}</li>
+                <li ng-class="design.step(2)"><span class="mtv-step-n">2</span>{{'Review proof' | r | xlat}}</li>
+                <li ng-class="design.step(3)"><span class="mtv-step-n">3</span>{{'Add to cart' | r | xlat}}</li>
+            </ol>
+        </div>
+
+        <div class="mtv-toggle" ng-if="!design.editing && canCreateVariant && LineItem.Product.VariantCount > 0">
+            <button type="button" ng-class="{on: design.mode != 'previous'}" ng-click="design.showNew()">+ {{'Create new' | r | xlat}}</button>
+            <button type="button" ng-class="{on: design.mode == 'previous'}" ng-click="design.showPrevious()">
+                {{'Choose previous design' | r | xlat}} <span class="mtv-count">{{LineItem.Product.VariantCount}}</span>
+            </button>
+        </div>
+
+        <!-- The design form -->
+        <div ng-if="design.editing || design.mode != 'previous'">
+            <p class="mtv-loading" ng-if="design.loading"><i class="fa fa-spinner fa-spin"></i> {{'Loading the design form' | r | xlat}}</p>
+            <p class="mtv-fallback" ng-if="design.failed">
+                {{'This design form can\'t be shown here.' | r | xlat}}
+                <a href="" redirect="/product/{{LineItem.Product.InteropID}}/{{design.editing ? LineItem.Variant.InteropID : 'new'}}/edit">{{'Open the full design form' | r | xlat}}</a>
+            </p>
+            <ng-form name="mtvForm" ng-if="!design.loading && !design.failed" ng-class="{'mtv-submitted': design.submitted}">
+                <div class="mtv-grid">
+                    <div class="mtv-cell mtv-span-{{f.span}}" ng-repeat="f in design.fields">
+                        <span class="mtv-counter" ng-if="f.counter">{{(design.working.Specs[f.name].Value || '').length}}/{{f.counter}}</span>
+                        <div mtvfield="f"></div>
+                    </div>
+                </div>
+            </ng-form>
+            <p class="mtv-error" role="alert" ng-if="design.error"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{design.error | xlat}}</p>
+            <div class="mtv-actions" ng-if="!design.loading && !design.failed">
+                <button type="button" class="mtv-primary" ng-click="design.save(false)" ng-disabled="design.saving">
+                    <span ng-if="design.saving"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> {{'Creating your proof' | r | xlat}}</span>
+                    <span ng-if="!design.saving && !design.editing">{{'Save design & create proof' | r | xlat}}</span>
+                    <span ng-if="!design.saving && design.canUpdate()">{{'Save changes' | r | xlat}}</span>
+                    <span ng-if="!design.saving && design.editing && !design.canUpdate()">{{'Save as a new design' | r | xlat}}</span>
+                </button>
+                <div class="mtv-secondary" ng-if="design.editing">
+                    <button type="button" class="mtv-link" ng-if="design.canUpdate()" ng-click="design.save(true)" ng-disabled="design.saving">{{'Save as a new design' | r | xlat}}</button>
+                    <button type="button" class="mtv-link" ng-click="design.cancelEdit()" ng-disabled="design.saving">{{'Cancel' | r | xlat}}</button>
+                </div>
+                <p class="mtv-note" ng-if="!design.editing">{{'Your proof appears on the left once it\'s saved.' | r | xlat}}</p>
+            </div>
+        </div>
+
+        <!-- Saved designs -->
+        <div ng-if="!design.editing && design.mode == 'previous'">
+            <div class="mt-variant-search" ng-if="LineItem.Product.VariantCount > settings.pageSize || searchTerm">
+                <input ng-model="searchTerm" type="text" placeholder="{{'Search' | r | xlat}}" />
+                <button type="button" ng-click="searchVariants(searchTerm)">{{'Search' | r | xlat}}</button>
+            </div>
+            <p class="mtv-error" role="alert" ng-if="design.error"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{design.error | xlat}}</p>
+            <ul class="mtv-list">
+                <li class="mtv-item" ng-class="{'mtv-item--confirm': design.confirmDelete == v.InteropID}"
+                    ng-repeat="v in LineItem.Product.Variants | paginate:(settings.currentPage-1) * settings.pageSize | limitTo:settings.pageSize" ng-if="v">
+                    <span class="mtv-thumb"><img ng-if="design.previews[v.InteropID]" ng-src="{{design.previews[v.InteropID]}}" alt="" /></span>
+                    <div class="mtv-item-text" ng-if="design.confirmDelete != v.InteropID">
+                        <h3>{{v.ExternalID}}</h3>
+                        <p ng-if="v.Description" ng-bind-html="trustedDescription(v)"></p>
+                    </div>
+                    <div class="mtv-item-actions" ng-if="design.confirmDelete != v.InteropID">
+                        <button type="button" class="mtv-use" ng-click="design.use(v)">{{'Use this design' | r | xlat}}</button>
+                        <button type="button" class="mtv-trash" ng-if="v.IsMpowerVariant" ng-click="design.confirmDelete = v.InteropID"
+                                title="{{'Delete this design' | r | xlat}}" aria-label="{{('Delete' | r | xlat) + ' ' + v.ExternalID}}">
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="mtv-item-text" ng-if="design.confirmDelete == v.InteropID">
+                        <h3>{{'Delete' | r | xlat}} &ldquo;{{v.ExternalID}}&rdquo;?</h3>
+                        <p>{{'This removes it from your saved designs. It can\'t be undone.' | r | xlat}}</p>
+                    </div>
+                    <div class="mtv-item-actions" ng-if="design.confirmDelete == v.InteropID">
+                        <button type="button" class="mtv-cancel" ng-click="design.confirmDelete = null" ng-disabled="design.deleting">{{'Cancel' | r | xlat}}</button>
+                        <button type="button" class="mtv-delete" ng-click="design.remove(v)" ng-disabled="design.deleting">
+                            <i class="fa fa-spinner fa-spin" aria-hidden="true" ng-if="design.deleting == v.InteropID"></i> {{'Delete' | r | xlat}}
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <p class="mtv-note mtv-note--left" ng-if="LineItem.Product.VariantCount > 0">{{'Picking one shows its proof on the left. You can order it as-is or edit it first.' | r | xlat}}</p>
+            <p class="mtv-note mtv-note--left" ng-if="!LineItem.Product.VariantCount">{{'You don\'t have any saved designs yet.' | r | xlat}}</p>
+            <div ng-show="LineItem.Product.VariantCount > settings.pageSize" class="mt-pagination">
+                <pagination ng-model="settings.currentPage" page="settings.currentPage" max-size="8" rotate="false" boundary-links="true" total-items="LineItem.Product.VariantCount"
+                            items-per-page="settings.pageSize" direction-links="true" previous-text="{{'Previous' | xlat}}" next-text="{{'Next' | xlat}}" first-text="{{'First' | xlat}}" last-text="{{'Last' | xlat}}"></pagination>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEPS 2-3: a saved design is loaded. The PDT's quantity + Add To Cart follow as this card's foot. -->
+    <div class="mtv-card" ng-class="{'mtv-card--joined': allowAddToOrder}" ng-if="LineItem.Variant && !design.editing">
+        <div class="mtv-top">
+            <div>
+                <p class="mtv-eyebrow">{{'Your design' | r | xlat}}</p>
+                <h2 class="mtv-title">{{LineItem.Variant.ExternalID || ('Saved design' | r | xlat)}}</h2>
+            </div>
+            <span class="mtv-pill"><i class="fa fa-check" aria-hidden="true"></i> {{'Saved' | r | xlat}}</span>
+        </div>
+        <ol class="mtv-steps mtv-steps--row">
+            <li ng-class="design.step(1)"><span class="mtv-step-n">1</span>{{'Design' | r | xlat}}</li>
+            <li ng-class="design.step(2)"><span class="mtv-step-n">2</span>{{'Review proof' | r | xlat}}</li>
+            <li ng-class="design.step(3)"><span class="mtv-step-n">3</span>{{'Add to cart' | r | xlat}}</li>
+        </ol>
+        <dl class="mtv-summary" ng-if="design.summary.length">
+            <div ng-repeat="row in design.summary"><dt>{{row.label}}</dt><dd>{{row.value}}</dd></div>
+        </dl>
+        <div class="mtv-summary-actions">
+            <span>{{'Something wrong? Change it and save again.' | r | xlat}}</span>
+            <span class="mtv-summary-links">
+                <button type="button" class="mtv-link" ng-click="design.edit()">{{'Edit design' | r | xlat}}</button>
+                <button type="button" class="mtv-link" ng-if="canCreateVariant" redirect="/product/{{LineItem.Product.InteropID}}">{{'Start a new design' | r | xlat}}</button>
+            </span>
+        </div>
+        <mtvorderspecs ng-if="design.hasOrderSpecs && allowAddToOrder && !isComingSoon()"></mtvorderspecs>
+        <label class="mtv-ack" ng-if="design.proof && allowAddToOrder && !isComingSoon()" ng-class="{'mtv-ack--checked': design.proofChecked}">
+            <input type="checkbox" ng-model="design.proofChecked" ng-change="design.setProof(design.proofChecked)" />
+            <span class="mtv-ack-text">
+                <strong>{{'I\'ve reviewed my proof and everything is correct' | r | xlat}}<span class="mtv-req" aria-hidden="true">*</span></strong>
+                <small>{{'Check every detail in the' | r | xlat}} <a href="" ng-click="$event.preventDefault(); getPdf(LineItem.Variant.ProofUrl)">{{'PDF proof' | r | xlat}}</a>. {{'It\'s printed exactly as shown.' | r | xlat}}</small>
+            </span>
+        </label>
+    </div>
+</div>

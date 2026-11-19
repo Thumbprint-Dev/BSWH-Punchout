@@ -702,6 +702,42 @@ payment methods at all.
 - Billing's "New Address" button moved out of the payment row into
   `.mt-checkout-billing-actions`.
 
+## Variable products: the design panel
+
+Variable (`VariableText`) products are designed on the product page itself, in
+`<variabledesigner>` (`js/directives/variableDesigner.js`, `partials/controls/variableDesigner.html`,
+styles under `mtv-` in `custom.css`). It replaces the saved-design list and the separate
+`specform.hcf` page, in three steps:
+
+1. **Design.** "Create new" shows the design fields; "Choose previous design" lists saved designs
+   with "Use this design" and, for the shopper's own (`IsMpowerVariant`), a trash can with an inline
+   confirm. Saving calls `Variant.save` and opens `/product/:id/:variantID`, as the old page did.
+2. **Review proof.** The proof shows on the left (`productLightbox.js` puts a variable product's
+   `Variant.PreviewUrl` first), with View PDF and Edit design. The card sums up the design. A
+   line-item dropdown whose name or label mentions "proof" and has a "Yes..." answer becomes one
+   checkbox that sets that answer; Add To Cart stays disabled until it's ticked.
+3. **Add to cart.** The PDT's own quantity and Add To Cart, styled as the card's foot (`mtv-card-foot`).
+
+- **Fields still come from the product's spec form in admin.** The panel fetches `specform.hcf` for
+  the product and lifts out its field elements (`customtextfield`, `customselectionfield`,
+  `ocmaskfield`, anything with `customfield`/`spec1="Variant.Specs.X"`), then compiles each against a
+  working copy of the design. So admin field choices, order, masks, defaults and "Other" values all
+  still apply. Wrappers, conditions (`ng-show` etc.) and anything else in the spec form are not
+  carried over - a product whose spec form relies on those needs the old page. If no fields are
+  found, the panel links to the old form instead.
+- **Layout rules:** 6-column grid. Text fields are half width; a text field limited to 10 characters
+  or fewer is narrow and joins the field before it; labels over 30 characters, dropdowns and
+  everything else are full width; a row's spare columns go to its last wide field. Text limited to
+  100 characters or fewer shows a counter. A dropdown with one real option hides Four51's automatic
+  "Other" (Allow Other Value) unless the design already holds an "Other" value; the full option list
+  is restored before saving.
+- **Editing:** "Save changes" updates the shopper's own design; an admin-made design can only be
+  saved as a new one. Order-time fields other than the proof render through
+  `addToOrderSpecForm.hcf` with a `LineItem` whose `Specs` leave the proof spec out (`mtvorderspecs`).
+- **Where it's off:** `ProductCtrl.useDesigner()` is false for editing an order awaiting approval;
+  it's undefined in other controllers that reuse the PDT (cart line-item edit), so those keep the
+  old layout and the `specform.hcf` page. Kits are untouched.
+
 ## Coming Soon products are switched on by category name
 
 A product becomes browse-only when it's in any category whose InteropID contains `comingsoon`.

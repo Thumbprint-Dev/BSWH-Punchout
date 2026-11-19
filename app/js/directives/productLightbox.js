@@ -93,6 +93,13 @@ function LightboxCtrl($scope, Lightbox) {
             });
         }
 
+        // A variable product's saved design: its proof comes first, ahead of any LightboxImages,
+        // so the design panel's "proof on the left" holds for every product.
+        if (li.Product.Type === 'VariableText' && li.Variant && li.Variant.PreviewUrl) {
+            li.images.unshift({ Number: 0, url: li.Variant.PreviewUrl, Selected: true, Name: '' });
+            angular.forEach(li.images, function (img, i) { img.Number = i; });
+        }
+
         // No LightboxImages images for this product - fall back to the single product/variant
         // image instead of an empty gallery.
         if (!li.images.length) {
