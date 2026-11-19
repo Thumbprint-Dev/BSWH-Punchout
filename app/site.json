@@ -1,31 +1,36 @@
 {
-	"_readme": "Per-site branding. Blank values fall back to the theme/platform defaults, so only fill in what this site changes. See THEME-DEVELOPMENT-NOTES.md, 'Per-site branding: app/site.json'.",
+	"_readme": "Template for a site's own site.json. Every option is listed, and every optional feature is off or blank until you fill it in. To launch a new site, copy this whole file into that site's site.json override and change only what the site needs. Blank values fall back to the theme/platform defaults. Keys starting with _ are notes and are ignored. true/false values go without quotes. See THEME-DEVELOPMENT-NOTES.md, 'Per-site branding: app/site.json'.",
+	"_help_name": "name: the site's name - the browser tab title and the logo's alt text before anyone signs in. Blank uses the company name once a user loads.",
 	"name": "",
+	"_help_favicon": "favicon: full URL of the browser tab icon (.png or .ico). Blank keeps the platform's own icon.",
 	"favicon": "",
 	"logo": {
+		"_help": "url: full URL of the nav logo, for sites whose company logo isn't set in Four51. alt: its alt text. Blank uses the company logo.",
 		"url": "",
 		"alt": ""
 	},
 	"address": {
-		"_help_showQuickAddress": "showQuickAddress: true or false, without quotes. false hides the Quick Address field on checkout's New Address form and the Addresses page. Leave it out and the field shows. It needs a Google Maps key that allows this site's domain.",
-		"showQuickAddress": true
+		"_help_showQuickAddress": "showQuickAddress: true or false, without quotes. true shows the Quick Address (Google address lookup) field on checkout's New Address form and the Addresses page. It needs a Google Maps key that allows this site's domain - without one the field only shows an error, so leave it false until that's set up.",
+		"showQuickAddress": false
 	},
 	"login": {
 		"_help_createAccountUrl": "createAccountUrl: where 'Need an account?' goes. Blank uses the built-in signup page at /admin, which needs the site to give anonymous visitors a temp session; otherwise paste the site's Four51 AutoLogon link.",
 		"createAccountUrl": ""
 	},
 	"theme": {
+		"_help": "accent: the site's main colour, e.g. \"#B12571\" (buttons, links, highlights). accentDark: its hover/darker shade - blank works it out from accent. fontFamily: the body font, e.g. \"Inter, sans-serif\". fontUrl: the stylesheet that loads that font, e.g. a Google Fonts link - without it the font only shows for people who have it installed. Blank keeps the theme's own colour and font.",
 		"accent": "",
 		"accentDark": "",
 		"fontFamily": "",
 		"fontUrl": ""
 	},
 	"hero": {
+		"_help": "The home page banner. image: full URL of the background image (blank: a beige striped placeholder pattern). eyebrow: the small line above the heading. heading, subheading: the banner text - replace the sample wording below; a blank value shows the theme's sample wording. showButton: true or false, without quotes - the call-to-action button. buttonText: its label. buttonHref: where it goes, e.g. catalog/category-interopid.",
 		"image": "",
 		"eyebrow": "Fall 2026 Collection",
 		"heading": "Gear your team for the season ahead.",
 		"subheading": "New apparel, drinkware and print kits, priced for your group.",
-		"showButton": true,
+		"showButton": false,
 		"buttonText": "Shop the collection",
 		"buttonHref": "catalog"
 	},
@@ -37,7 +42,7 @@
 		]
 	},
 	"priceNotes": {
-		"_help": "Notes shown on the product page next to the price, e.g. to explain special pricing. Add notes to the notes list. message: plain text, required (a blank message is skipped). placement: pick one of two options - \"price\" (directly under the price; the default, also used when left blank) or \"button\" (right above the Add to Cart button). Who sees it: leave out products and categories and the note shows on every product. categories: [\"category-interopid\"] limits it to products in those categories (each category is matched on its own; list subcategories separately). products: [\"PRODUCT-SKU\"] limits it to those products, by InteropID or SKU. One note per product - the most specific wins: a products note beats a categories note, which beats an every-product note; ties go to the note listed first. showInOrderSummary: true or false, without quotes - true also shows the note in the cart and checkout order summaries, under the total, whenever it applies to at least one item in the cart (each note once). Leave it out and the note stays on the product page only. The note hides for users who can't see pricing. Keys starting with _ are ignored. Reload the page to see a change.",
+		"_help": "Notes shown on the product page next to the price, e.g. to explain special pricing. Add notes to the notes list (empty: no notes). message: plain text, required (a blank message is skipped). placement: pick one of two options - \"price\" (directly under the price; the default, also used when left blank) or \"button\" (right above the Add to Cart button). Who sees it: leave out products and categories and the note shows on every product. categories: [\"category-interopid\"] limits it to products in those categories (each category is matched on its own; list subcategories separately). products: [\"PRODUCT-SKU\"] limits it to those products, by InteropID or SKU. One note per product - the most specific wins: a products note beats a categories note, which beats an every-product note; ties go to the note listed first. showInOrderSummary: true or false, without quotes - true also shows the note in the cart and checkout order summaries, under the total, whenever it applies to at least one item in the cart (each note once). Leave it out and the note stays on the product page only. The note hides for users who can't see pricing. Keys starting with _ are ignored. Reload the page to see a change.",
 		"_example_notes": [
 			{"message": "Special pricing: this price reflects your program discount.", "placement": "price", "showInOrderSummary": true},
 			{"message": "Holiday pricing applies to this category.", "categories": ["category-interopid"]},
@@ -46,10 +51,10 @@
 		"notes": []
 	},
 	"comparePricing": {
-		"_help": "Retail (\"compare at\") pricing. Display only - the real Four51 price is always what's charged. enabled: true or false, without quotes - the master switch; false hides everything below. discountPercent: how far the real price is below retail, as a number from 0 to 90. retail = price / (1 - discountPercent / 100), rounded to the cent, so 15 shows $10.00 against a retail price of $11.76. showRetailPrice: true or false - the retail price struck through next to the real price (product cards, product page, price schedule, quick add, mini-cart, cart lines). showSaleLabel: true or false - saleLabel above the real price on the product page and quick add. showOrderSavings: true or false - savingsText under the totals in the cart, checkout, the cart's print view and the order confirmation page straight after ordering. Savings are each line's retail total minus its real total; shipping, tax and coupons aren't included. Past orders (Order History, the order print view) don't show it, because the figure isn't stored with the order and a later change here would otherwise change what they say. retailLabel (read by screen readers before the struck price), saleLabel, savingsText: wording; {amount} in savingsText becomes the amount. overrides: a different discountPercent for some products - each needs products: [\"PRODUCT-SKU\"] (InteropID or SKU) or categories: [\"category-interopid\"] (each category matched on its own). The most specific wins: a products override beats a categories override, which beats the site-wide discountPercent. 0 turns retail pricing off for those products. productSavings: a fixed per-unit dollar saving for specific products, as { \"PRODUCT-SKU\": 2.24 } (SKU or InteropID, capitals ignored). retail = price + the saving for one unit, + saving x quantity for a cart line or a fixed-quantity pack. A product listed here uses its dollar amount and ignores every percentage (discountPercent and overrides); products not listed keep the percentage rules. Keys starting with _ are ignored. Reload the page to see a change.",
-		"_example": {"enabled": true, "discountPercent": 15, "overrides": [{"discountPercent": 25, "categories": ["category-interopid"]}, {"discountPercent": 0, "products": ["PRODUCT-SKU"]}]},
+		"_help": "Retail (\"compare at\") pricing. Display only - the real Four51 price is always what's charged. enabled: true or false, without quotes - the master switch; false hides everything below. discountPercent: how far the real price is below retail, as a number from 0 to 90 (0: no site-wide percentage). retail = price / (1 - discountPercent / 100), rounded to the cent, so 15 shows $10.00 against a retail price of $11.76. showRetailPrice: true or false - the retail price struck through next to the real price (product cards, product page, price schedule, quick add, mini-cart, cart lines). showSaleLabel: true or false - saleLabel above the real price on the product page and quick add. showOrderSavings: true or false - savingsText under the totals in the cart, checkout, the cart's print view and the order confirmation page straight after ordering. Savings are each line's retail total minus its real total; shipping, tax and coupons aren't included. Past orders (Order History, the order print view) don't show it, because the figure isn't stored with the order and a later change here would otherwise change what they say. retailLabel (read by screen readers before the struck price), saleLabel, savingsText: wording; {amount} in savingsText becomes the amount. overrides: a different discountPercent for some products - each needs products: [\"PRODUCT-SKU\"] (InteropID or SKU) or categories: [\"category-interopid\"] (each category matched on its own). The most specific wins: a products override beats a categories override, which beats the site-wide discountPercent. 0 turns retail pricing off for those products. productSavings: a fixed per-unit dollar saving for specific products, as { \"PRODUCT-SKU\": 2.24 } (SKU or InteropID, capitals ignored). retail = price + the saving for one unit, + saving x quantity for a cart line or a fixed-quantity pack. A product listed here uses its dollar amount and ignores every percentage (discountPercent and overrides); products not listed keep the percentage rules. Keys starting with _ are ignored. Reload the page to see a change.",
+		"_example": {"enabled": true, "discountPercent": 15, "overrides": [{"discountPercent": 25, "categories": ["category-interopid"]}, {"discountPercent": 0, "products": ["PRODUCT-SKU"]}], "productSavings": {"PRODUCT-SKU": 2.24}},
 		"enabled": false,
-		"discountPercent": 15,
+		"discountPercent": 0,
 		"showRetailPrice": true,
 		"showSaleLabel": true,
 		"showOrderSavings": true,
@@ -60,12 +65,11 @@
 		"productSavings": {}
 	},
 	"shipping": {
-		"_help_allowedDomesticMethods": "allowedDomesticMethods: what a DOMESTIC order may use. Matched on the name Four51 returns, trimmed and case-insensitive, and the whole name must match - `Fedex International` does not match `Fedex International Priority`, so list each variant you want. Leave it empty for no restriction. Methods seen: `Bulk Shipping (over 150 lbs)`, `Fedex International`, `UPS Ground`, `UPS 3 Day Select`, `UPS 2nd Day Air`, `UPS Next Day Air Saver`, `UPS Next Day Air`, `UPS Next Day Air Early A.M.`.",
-		"_help_allowedInternationalMethods": "allowedInternationalMethods: what an order shipping OUTSIDE domesticCountries may use. The rule is symmetric - an international address sees only these, and a domestic address never sees them, so a carrier listed here is automatically kept out of domestic checkout. Leave it empty and country plays no part at all. A name matching nothing empties the dropdown and logs a warning to the console.",
+		"_help_allowedDomesticMethods": "allowedDomesticMethods: what a DOMESTIC order may use, e.g. [\"UPS Ground\"]. Matched on the name Four51 returns, trimmed and case-insensitive, and the whole name must match - `Fedex International` does not match `Fedex International Priority`, so list each variant you want. Leave it empty for no restriction. Methods seen: `Bulk Shipping (over 150 lbs)`, `Fedex International`, `UPS Ground`, `UPS 3 Day Select`, `UPS 2nd Day Air`, `UPS Next Day Air Saver`, `UPS Next Day Air`, `UPS Next Day Air Early A.M.`.",
+		"_help_allowedInternationalMethods": "allowedInternationalMethods: what an order shipping OUTSIDE domesticCountries may use, e.g. [\"Fedex International\"]. The rule is symmetric - an international address sees only these, and a domestic address never sees them, so a carrier listed here is automatically kept out of domestic checkout. Leave it empty and country plays no part at all. A name matching nothing empties the dropdown and logs a warning to the console.",
 		"_help_domesticCountries": "domesticCountries: country codes treated as domestic, as the address stores them. Everything else counts as international. Empty falls back to US. Canada and Mexico are NOT domestic unless listed here. Note this is country only.",
-		
-		"allowedDomesticMethods": ["UPS Ground"],
-		"allowedInternationalMethods": ["Fedex International"],
+		"allowedDomesticMethods": [],
+		"allowedInternationalMethods": [],
 		"domesticCountries": ["US"]
 	}
 }

@@ -810,6 +810,14 @@ There is no CMS behind this theme, and the platform has no field for a home-page
 hero. `app/site.json` fills that gap: one deployed file per site, editable in
 Four51 without forking the theme.
 
+**The repo's `app/site.json` is the new-site template.** It lists every option with a `_help`
+note, and every optional feature is off or blank: no Quick Address, no hero button, no category
+messages or price notes, compare pricing disabled, no shipping restriction. To launch a site,
+copy the whole file into that site's `site.json` override and fill in only what it needs. Keep
+it that way when adding a setting: add the key to the template, off by default, with a `_help`
+note. It is also what a site with no override of its own runs, so a site that needs any of
+these switched on must have its own override.
+
 ```json
 {
 	"favicon": "",
