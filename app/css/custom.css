@@ -1617,6 +1617,14 @@ body {
     border-radius: 10px;
 }
 
+/* A variable product's proof (productLightbox.js sets image.fit): shown whole on white, since
+   cropping a business card or flyer to a square cuts off its edges. */
+.mt-lightbox-image-large.mt-lightbox-image--fit {
+    object-fit: contain;
+    background: var(--mt-color-white);
+    border: 1px solid var(--mt-color-border);
+}
+
 .mt-lightbox-images a.active .mt-lightbox-image-large {
     display: block;
 }

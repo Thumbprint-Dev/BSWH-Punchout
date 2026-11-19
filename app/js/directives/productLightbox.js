@@ -43,10 +43,10 @@ function productlightbox() {
             '<ul class="mt-lightbox-images">',
             '<li ng-repeat="image in LineItem.images">',
             '<a class="hidden-xs" ng-click="openLightboxModal($index)" ng-class="{active: $index==$parent.index}">',
-            '<img ng-src="{{image.url}}" class="mt-lightbox-image-large" />',
+            '<img ng-src="{{image.url}}" class="mt-lightbox-image-large" ng-class="{\'mt-lightbox-image--fit\': image.fit}" />',
             '</a>',
             '<a class="mt-lightbox-no-click visible-xs" ng-class="{active: $index==$parent.index}">',
-            '<img ng-src="{{image.url}}" class="mt-lightbox-image-large" />',
+            '<img ng-src="{{image.url}}" class="mt-lightbox-image-large" ng-class="{\'mt-lightbox-image--fit\': image.fit}" />',
             '</a>',
             '</li>',
             '</ul>',
@@ -96,7 +96,7 @@ function LightboxCtrl($scope, Lightbox) {
         // A variable product's saved design: its proof comes first, ahead of any LightboxImages,
         // so the design panel's "proof on the left" holds for every product.
         if (li.Product.Type === 'VariableText' && li.Variant && li.Variant.PreviewUrl) {
-            li.images.unshift({ Number: 0, url: li.Variant.PreviewUrl, Selected: true, Name: '' });
+            li.images.unshift({ Number: 0, url: li.Variant.PreviewUrl, Selected: true, Name: '', fit: true });
             angular.forEach(li.images, function (img, i) { img.Number = i; });
         }
 
@@ -106,7 +106,8 @@ function LightboxCtrl($scope, Lightbox) {
             var fallbackUrl = (li.Variant && (li.Variant.PreviewUrl || li.Variant.LargeImageUrl)) ||
                 li.Product.LargeImageUrl || li.Product.SmallImageUrl;
             if (fallbackUrl) {
-                li.images.push({ Number: 0, url: fallbackUrl, Selected: true, Name: '' });
+                // A variable product's proof is shown whole (fit), not cropped square like a photo.
+                li.images.push({ Number: 0, url: fallbackUrl, Selected: true, Name: '', fit: li.Product.Type === 'VariableText' && !!li.Variant });
             }
         }
         if ($scope.index >= li.images.length) $scope.index = 0;

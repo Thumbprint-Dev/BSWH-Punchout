@@ -322,7 +322,7 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 					if (s && s.Required && !s.Value) missing.push(f.label);
 				});
 				if (missing.length) {
-					design.error = 'Please fill in ' + missing.join(', ') + '.';
+					design.error = (missing.length > 1 ? 'These fields are required: ' : 'This field is required: ') + missing.join(', ') + '.';
 					return;
 				}
 				design.saving = true;
