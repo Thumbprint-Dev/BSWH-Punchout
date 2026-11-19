@@ -1923,10 +1923,17 @@ body {
     background: rgba(255, 255, 255, 0.22);
 }
 
-/* Fields: a 6-column grid, spans set per field by variableDesigner.js. */
+/* Fields: one 12-column row per <div class="row"> in the product's spec form, each field as wide
+   as its col-md-* there (mtv-w-N), or its col-sm/xs width below 992px (mtv-s-N). */
 .mtv-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mtv-row {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -1935,15 +1942,35 @@ body {
     min-width: 0;
 }
 
-.mtv-span-1 { grid-column: span 1; }
-.mtv-span-2 { grid-column: span 2; }
-.mtv-span-3 { grid-column: span 3; }
-.mtv-span-4 { grid-column: span 4; }
-.mtv-span-5 { grid-column: span 5; }
-.mtv-span-6 { grid-column: span 6; }
+.mtv-w-1 { grid-column: span 1; }
+.mtv-w-2 { grid-column: span 2; }
+.mtv-w-3 { grid-column: span 3; }
+.mtv-w-4 { grid-column: span 4; }
+.mtv-w-5 { grid-column: span 5; }
+.mtv-w-6 { grid-column: span 6; }
+.mtv-w-7 { grid-column: span 7; }
+.mtv-w-8 { grid-column: span 8; }
+.mtv-w-9 { grid-column: span 9; }
+.mtv-w-10 { grid-column: span 10; }
+.mtv-w-11 { grid-column: span 11; }
+.mtv-w-12 { grid-column: span 12; }
+
+@media (max-width: 991px) {
+    .mtv-s-1 { grid-column: span 1; }
+    .mtv-s-2 { grid-column: span 2; }
+    .mtv-s-3 { grid-column: span 3; }
+    .mtv-s-4 { grid-column: span 4; }
+    .mtv-s-5 { grid-column: span 5; }
+    .mtv-s-6 { grid-column: span 6; }
+    .mtv-s-7 { grid-column: span 7; }
+    .mtv-s-8 { grid-column: span 8; }
+    .mtv-s-9 { grid-column: span 9; }
+    .mtv-s-10 { grid-column: span 10; }
+    .mtv-s-11 { grid-column: span 11; }
+    .mtv-s-12 { grid-column: span 12; }
+}
 
 @media (max-width: 480px) {
-    .mtv-cell { grid-column: span 6; }
     .mtv-toggle { grid-template-columns: 1fr; }
 }
 

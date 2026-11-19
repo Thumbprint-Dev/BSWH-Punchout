@@ -13,9 +13,9 @@
 // working copy of the design. So every product keeps its admin-chosen fields and Four51's own
 // field behaviour (defaults, masks, "Other" values, validation) - this only lays them out.
 //
-// Layout: a 6-column grid. Text fields are half width; ones limited to 10 characters or fewer are
-// narrow and sit beside the field before them; long labels, dropdowns and anything else are full
-// width; each row's spare space goes to its last wide field. Text fields limited to 100
+// Layout follows the spec form's own Bootstrap rows and columns, as set up in Storefront 2.0: fields
+// in the same <div class="row"> share a row, each as wide as its col-md-* (or col-lg/sm/xs) class,
+// on a 12-column grid; below 992px they use their col-sm/col-xs width. Text fields limited to 100
 // characters or fewer show a character counter. A dropdown with one real option hides Four51's
 // automatic "Other" choice (Allow Other Value), since there's nothing to choose between.
 //
@@ -32,12 +32,32 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 		return !!option && String(option.ID || '').indexOf('_other') > -1;
 	}
 
+	// A Bootstrap column width (1-12) from an element's col-<size>-N classes, trying the sizes in
+	// order, or null when it has none of them.
+	function colWidth(el, sizes) {
+		var cls = ' ' + (el && el.className || '') + ' ';
+		for (var i = 0; i < sizes.length; i++) {
+			var m = new RegExp(' col-' + sizes[i] + '-(\\d{1,2}) ').exec(cls);
+			if (m && +m[1] >= 1 && +m[1] <= 12) return +m[1];
+		}
+		return null;
+	}
+
+	function closest(el, test, stop) {
+		while (el && el !== stop) {
+			if (el.nodeType === 1 && test(el)) return el;
+			el = el.parentNode;
+		}
+		return null;
+	}
+
 	// The field elements of a spec form, in order, as bare tags (attributes only - children are
-	// dropped, so a field written self-closing can't drag its siblings along with it).
+	// dropped, so a field written self-closing can't drag its siblings along with it), each with the
+	// row it sits in and its column widths.
 	function parseSpecForm(html) {
 		var doc = document.implementation.createHTMLDocument('');
 		doc.body.innerHTML = html || '';
-		var fields = [];
+		var fields = [], rows = [];
 		angular.forEach(doc.body.querySelectorAll('[customfield], [spec1]'), function(el) {
 			var match = SPEC_REF.exec(el.getAttribute('customfield') || el.getAttribute('spec1') || '');
 			if (!match) return;
@@ -46,10 +66,18 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 			angular.forEach(el.attributes, function(a) {
 				attrs.push(a.name + '="' + a.value.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"');
 			});
+			var col = closest(el.parentNode, function(n) { return colWidth(n, ['md', 'lg', 'sm', 'xs']) !== null; }, doc.body);
+			var row = closest(el.parentNode, function(n) { return /(^|\s)row(\s|$)/.test(n.className || ''); }, doc.body);
+			var rowIndex = row ? rows.indexOf(row) : -1;
+			if (row && rowIndex === -1) { rows.push(row); rowIndex = rows.length - 1; }
+			var small = colWidth(col, ['sm', 'xs']) || 12;
 			fields.push({
 				name: match[1],
 				tag: tag,
 				label: el.getAttribute('label') || '',
+				row: row ? 'r' + rowIndex : 'f' + fields.length,
+				wide: colWidth(col, ['md', 'lg']) || small,
+				small: small,
 				html: '<' + tag + ' ' + attrs.join(' ') + '></' + tag + '>'
 			});
 		});
@@ -64,48 +92,6 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 		return field.tag === 'customtextfield' && spec.ControlType === 'Text' && !(spec.Lines > 1);
 	}
 
-	// A phone extension: named or labelled "ext"/"extension" at the end (Phone_EXT, "ext.").
-	var EXTENSION = /(^|[^a-z])ext(ension)?\.?$/i;
-
-	function baseSpan(field, spec) {
-		if (isShortText(field, spec)) {
-			if ((spec.MaxLength > 0 && spec.MaxLength <= 10) || EXTENSION.test(field.name) || EXTENSION.test(labelOf(field, spec))) return 2;
-			return labelOf(field, spec).length > 30 ? 6 : 3;
-		}
-		if (field.tag === 'ocmaskfield' || field.tag === 'customphonefield') return 3;
-		return 6;
-	}
-
-	// Rows of 6 columns. A narrow field joins the field before it; spare columns go to the row's
-	// last field that isn't narrow.
-	function layout(fields) {
-		var row = [], used = 0;
-		function close() {
-			if (!row.length) return;
-			var spare = 6 - used;
-			if (spare > 0) {
-				var target = row[row.length - 1];
-				for (var i = row.length - 1; i >= 0; i--) {
-					if (row[i].span > 2) { target = row[i]; break; }
-				}
-				target.span += spare;
-			}
-			row = [];
-			used = 0;
-		}
-		angular.forEach(fields, function(f, i) {
-			// Keep room for a narrow field that follows, so it lands beside this one.
-			var next = fields[i + 1];
-			var need = f.span + (f.span > 2 && next && next.span <= 2 ? next.span : 0);
-			if (used + need > 6) close();
-			row.push(f);
-			used += f.span;
-			if (used === 6) close();
-		});
-		close();
-		return fields;
-	}
-
 	return {
 		restrict: 'E',
 		scope: false,
@@ -117,6 +103,7 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 				editing: false,
 				working: null,
 				fields: [],
+				rows: [],
 				summary: [],
 				loading: false,
 				failed: false,
@@ -184,21 +171,26 @@ function($http, $templateCache, $location, $route, $timeout, Variant) {
 
 			function render() {
 				if (!templateFields) return;
-				var fields = [];
+				var fields = [], rows = [], rowOf = {};
 				if (design.working) {
 					angular.forEach(templateFields, function(f) {
 						var spec = design.working.Specs[f.name];
 						if (!spec) return;
-						fields.push({
+						var field = {
 							name: f.name,
 							html: f.html,
 							label: labelOf(f, spec),
-							span: baseSpan(f, spec),
+							wide: f.wide,
+							small: f.small,
 							counter: isShortText(f, spec) && spec.MaxLength > 0 && spec.MaxLength <= 100 ? spec.MaxLength : 0
-						});
+						};
+						fields.push(field);
+						if (!rowOf[f.row]) rows.push(rowOf[f.row] = []);
+						rowOf[f.row].push(field);
 					});
 				}
-				design.fields = layout(fields);
+				design.fields = fields;
+				design.rows = rows;
 
 				var summary = [];
 				var saved = scope.LineItem.Variant;

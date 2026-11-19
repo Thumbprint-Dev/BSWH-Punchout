@@ -29,10 +29,13 @@
                 <a href="" redirect="/product/{{LineItem.Product.InteropID}}/{{design.editing ? LineItem.Variant.InteropID : 'new'}}/edit">{{'Open the full design form' | r | xlat}}</a>
             </p>
             <ng-form name="mtvForm" ng-if="!design.loading && !design.failed" ng-class="{'mtv-submitted': design.submitted}">
+                <!-- One grid row per <div class="row"> in the product's spec form, columns as set there. -->
                 <div class="mtv-grid">
-                    <div class="mtv-cell mtv-span-{{f.span}}" ng-repeat="f in design.fields">
-                        <span class="mtv-counter" ng-if="f.counter">{{(design.working.Specs[f.name].Value || '').length}}/{{f.counter}}</span>
-                        <div mtvfield="f"></div>
+                    <div class="mtv-row" ng-repeat="row in design.rows">
+                        <div class="mtv-cell mtv-w-{{f.wide}} mtv-s-{{f.small}}" ng-repeat="f in row">
+                            <span class="mtv-counter" ng-if="f.counter">{{(design.working.Specs[f.name].Value || '').length}}/{{f.counter}}</span>
+                            <div mtvfield="f"></div>
+                        </div>
                     </div>
                 </div>
             </ng-form>

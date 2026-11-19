@@ -725,12 +725,13 @@ styles under `mtv-` in `custom.css`). It replaces the saved-design list and the 
   still apply. Wrappers, conditions (`ng-show` etc.) and anything else in the spec form are not
   carried over - a product whose spec form relies on those needs the old page. If no fields are
   found, the panel links to the old form instead.
-- **Layout rules:** 6-column grid. Text fields are half width; a text field limited to 10 characters
-  or fewer is narrow and joins the field before it; labels over 30 characters, dropdowns and
-  everything else are full width; a row's spare columns go to its last wide field. Text limited to
-  100 characters or fewer shows a counter. A dropdown with one real option hides Four51's automatic
-  "Other" (Allow Other Value) unless the design already holds an "Other" value; the full option list
-  is restored before saving.
+- **Layout follows the spec form.** Fields in the same `<div class="row">` of the product's spec
+  form (as set up in Storefront 2.0) share a row, each as wide as its `col-md-*` class (falling back
+  to `col-lg`, then `col-sm`/`col-xs`) on a 12-column grid; below 992px they use their
+  `col-sm`/`col-xs` width. So to put Phone and its extension side by side, give them one row in the
+  spec form (e.g. `col-md-8` + `col-md-4`). Text limited to 100 characters or fewer shows a counter.
+  A dropdown with one real option hides Four51's automatic "Other" (Allow Other Value) unless the
+  design already holds an "Other" value; the full option list is restored before saving.
 - **Editing:** "Save changes" updates the shopper's own design; an admin-made design can only be
   saved as a new one. Order-time fields other than the proof render through
   `addToOrderSpecForm.hcf` with a `LineItem` whose `Specs` leave the proof spec out (`mtvorderspecs`).
