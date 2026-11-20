@@ -28,6 +28,7 @@ angular.module('OrderCloud-ProductLightbox')
     .provider('Lightbox', Lightbox)
     .service('ImageLoader', ImageLoader)
     .directive('lightboxSrc', lightboxSrc)
+    .directive('mtimgstatus', mtimgstatus)
 ;
 
 function productlightbox() {
@@ -38,15 +39,28 @@ function productlightbox() {
     return directive;
 
     function template() {
+        // Shown over the image while it loads (mtimgstatus below). A variable product's proof is
+        // rendered by the server on request and takes several seconds after a save, so without
+        // this the image area just sat empty.
+        var status = [
+            '<span class="mt-lightbox-status" role="status">',
+            '<span class="mt-lightbox-status-loading"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i>',
+            '{{(image.fit ? \'Creating your proof preview\' : \'Loading image\') | r | xlat}}</span>',
+            '<span class="mt-lightbox-status-failed"><i class="fa fa-picture-o" aria-hidden="true"></i>',
+            '{{(image.fit ? \'The preview isn\\\'t available. Use View PDF to check your proof.\' : \'This image isn\\\'t available.\') | r | xlat}}</span>',
+            '</span>'
+        ].join('');
         return [
             '<div class="mt-lightbox-thumbnail-panel">',
             '<ul class="mt-lightbox-images">',
             '<li ng-repeat="image in LineItem.images">',
             '<a class="hidden-xs" ng-click="openLightboxModal($index)" ng-class="{active: $index==$parent.index}">',
-            '<img ng-src="{{image.url}}" class="mt-lightbox-image-large" ng-class="{\'mt-lightbox-image--fit\': image.fit}" />',
+            '<img ng-src="{{image.url}}" mtimgstatus class="mt-lightbox-image-large" ng-class="{\'mt-lightbox-image--fit\': image.fit}" />',
+            status,
             '</a>',
             '<a class="mt-lightbox-no-click visible-xs" ng-class="{active: $index==$parent.index}">',
-            '<img ng-src="{{image.url}}" class="mt-lightbox-image-large" ng-class="{\'mt-lightbox-image--fit\': image.fit}" />',
+            '<img ng-src="{{image.url}}" mtimgstatus class="mt-lightbox-image-large" ng-class="{\'mt-lightbox-image--fit\': image.fit}" />',
+            status,
             '</a>',
             '</li>',
             '</ul>',
@@ -299,6 +313,31 @@ function Lightbox() {
         });
         return Lightbox;
     }];
+}
+
+// Marks the image's parent link "mt-img-loading" from the moment its src is set until the image
+// arrives, or "mt-img-failed" if it can't load, so custom.css can show the status over the
+// empty image area. Classes are set directly (no scope or digest needed).
+function mtimgstatus() {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            var img = element[0];
+            var holder = element.parent();
+            function set(state) {
+                holder.toggleClass('mt-img-loading', state === 'loading');
+                holder.toggleClass('mt-img-failed', state === 'failed');
+            }
+            element.on('load', function () { set(img.naturalWidth ? 'done' : 'failed'); });
+            element.on('error', function () { set('failed'); });
+            attrs.$observe('src', function (src) {
+                if (!src) return;
+                // An image already in the browser cache may be complete before this runs.
+                set(img.complete ? (img.naturalWidth ? 'done' : 'loading') : 'loading');
+            });
+            scope.$on('$destroy', function () { element.off('load error'); });
+        }
+    };
 }
 
 function imagelightboxtemplate () {

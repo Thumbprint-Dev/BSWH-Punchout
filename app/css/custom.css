@@ -1601,6 +1601,7 @@ body {
        image's natural width, so a small product image showed at its own size instead of
        filling the column like every other product */
     display: block;
+    position: relative;
     cursor: pointer;
 }
 
@@ -1627,6 +1628,79 @@ body {
 
 .mt-lightbox-images a.active .mt-lightbox-image-large {
     display: block;
+}
+
+/* Loading / failed status over the image (productLightbox.js, mtimgstatus). A saved design's
+   proof is rendered on request and takes a few seconds, so the empty frame gets a soft fill and
+   a spinner. The status fades in after a short delay so a fast photo doesn't flash it. */
+.mt-lightbox-status {
+    display: none;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--mt-color-muted);
+    pointer-events: none;
+}
+
+.mt-lightbox-status-loading,
+.mt-lightbox-status-failed {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: 260px;
+}
+
+.mt-lightbox-status .fa {
+    font-size: 26px;
+    color: var(--mt-color-accent);
+}
+
+.mt-lightbox-status-failed .fa {
+    color: var(--mt-color-muted);
+}
+
+.mt-lightbox-images a.active.mt-img-loading .mt-lightbox-status,
+.mt-lightbox-images a.active.mt-img-failed .mt-lightbox-status {
+    display: flex;
+    animation: mt-lightbox-status-in 0.2s ease 0.3s both;
+}
+
+.mt-img-loading .mt-lightbox-status-loading,
+.mt-img-failed .mt-lightbox-status-failed {
+    display: flex;
+}
+
+/* The frame is drawn on the link and the image hidden (it keeps its square size), so a
+   half-loaded image or the browser's broken-image icon never shows. */
+.mt-lightbox-images a.mt-img-loading,
+.mt-lightbox-images a.mt-img-failed {
+    background: var(--mt-color-bg);
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px var(--mt-color-border);
+}
+
+.mt-img-loading .mt-lightbox-image-large,
+.mt-img-failed .mt-lightbox-image-large {
+    visibility: hidden;
+}
+
+@keyframes mt-lightbox-status-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mt-lightbox-images a.active.mt-img-loading .mt-lightbox-status,
+    .mt-lightbox-images a.active.mt-img-failed .mt-lightbox-status {
+        animation: none;
+    }
 }
 
 .mt-lightbox-thumbs {
