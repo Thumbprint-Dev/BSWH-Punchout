@@ -586,36 +586,70 @@ textarea {
     padding-top: 48px;
 }
 
-/* No photo uploaded: a Light Gray tile with a short path in its top-right corner (a segment
-   running off the edge, turning at a Dark Gray triangle) and the name in Dark Gray. The segment
-   colour steps through the brand's secondary colours so neighbouring tiles differ; Blue is left
-   out, as the guidelines ask for it to be used most sparingly (p. 23). Drawn with the
-   placeholder's two pseudo-elements, which custom.css positions inside the tile. */
+/* No photo uploaded: a white card, shorter than a photo tile, with the category name as a
+   headline, an arrow cue, and a path ribbon along the bottom: a segment in the tile's colour
+   comes in from the left edge and turns at a Dark Gray triangle. On hover or keyboard focus the
+   ribbon runs further and the border darkens. The segment colour steps through the brand's
+   secondary colours so neighbouring tiles differ; Blue is left out, as the guidelines ask for
+   it to be used most sparingly (p. 23).
+   :has() picks out no-photo tiles from the tile itself. A browser without it keeps the square
+   tile with the same ribbon. */
+.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)) {
+    aspect-ratio: 3 / 2;
+    border: 1px solid var(--mt-color-border);
+    background: var(--bsw-white);
+    transition: border-color 160ms ease;
+}
+
+.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):hover,
+.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):focus-visible {
+    border-color: var(--bsw-dark-gray);
+}
+
 .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) {
     --bsw-tile-seg: var(--bsw-yellow);
-    background: var(--bsw-light-gray);
+    --bsw-ribbon: 14px;
+    background: var(--bsw-white);
 }
 
 .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::before,
 .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::after {
     content: '';
     position: absolute;
-    top: 0;
-    height: 28px;
+    bottom: 0;
+    height: var(--bsw-ribbon);
 }
 
-/* The segment, running off the tile's right edge. */
+/* The segment, running in from the tile's left edge. */
 .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::before {
-    right: 0;
-    width: 40%;
+    left: 0;
+    width: 55%;
     background: var(--bsw-tile-seg);
+    transition: width 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* The turn: a right triangle against the segment's left end, dark half touching it. */
+/* The turn: a right triangle against the segment's end, cut the same way as the footer's. */
 .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::after {
-    right: 40%;
-    width: 28px;
-    background: linear-gradient(to bottom right, transparent 50%, var(--bsw-dark-gray) 50%);
+    left: 55%;
+    width: var(--bsw-ribbon);
+    background: linear-gradient(to top right, var(--bsw-dark-gray) 50%, transparent 50%);
+    transition: left 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mt-dept-tile:hover .mt-placeholder-photo:not(.mt-real-photo)::before,
+.mt-dept-tile:focus-visible .mt-placeholder-photo:not(.mt-real-photo)::before {
+    width: 75%;
+}
+
+.mt-dept-tile:hover .mt-placeholder-photo:not(.mt-real-photo)::after,
+.mt-dept-tile:focus-visible .mt-placeholder-photo:not(.mt-real-photo)::after {
+    left: 75%;
+}
+
+/* No zoom on a tile with nothing to zoom. */
+.mt-dept-tile:hover .mt-placeholder-photo:not(.mt-real-photo),
+.mt-dept-tile:focus-visible .mt-placeholder-photo:not(.mt-real-photo) {
+    transform: none;
 }
 
 .row > :nth-child(5n+2) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-orange); }
@@ -623,11 +657,50 @@ textarea {
 .row > :nth-child(5n+4) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-green); }
 .row > :nth-child(5n+5) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-red); }
 
+/* The name sits top-left as a headline; the arrow cue sits bottom-right above the ribbon. */
 .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) + .mt-dept-name {
+    top: 0;
+    bottom: auto;
+    padding: 22px 24px;
     color: var(--bsw-dark-gray);
     text-shadow: none;
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 700;
+    line-height: 1.25;
+}
+
+.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo))::after {
+    content: '\f061';
+    font-family: FontAwesome;
+    position: absolute;
+    right: 22px;
+    bottom: 30px;
+    font-size: 16px;
+    color: var(--bsw-dark-gray);
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Phones: one tile per row, so make no-photo tiles compact list cards instead of tall blocks. */
+@media (max-width: 767px) {
+    .mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)) {
+        aspect-ratio: auto;
+        height: 96px;
+        margin: 0 0 12px;
+    }
+
+    .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) + .mt-dept-name {
+        padding: 18px 56px 18px 20px;
+        font-size: 18px;
+    }
+
+    .mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo))::after {
+        bottom: 36px;
+    }
+}
+
+.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):hover::after,
+.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):focus-visible::after {
+    transform: translateX(4px);
 }
 
 /* Missing product photos elsewhere: a Light Gray box with a centred picture icon (Font Awesome
@@ -636,7 +709,7 @@ textarea {
     background: var(--bsw-light-gray);
 }
 
-.mt-placeholder-photo:not(.mt-real-photo)::before {
+.mt-placeholder-photo:not(.mt-real-photo):not(.mt-dept-tile *)::before {
     content: '\f03e';
     font-family: FontAwesome;
     font-size: 28px;
@@ -664,4 +737,172 @@ textarea {
 .mt-punchout-help {
     margin-top: 10px;
     color: var(--mt-color-muted);
+}
+
+/* ===== BSWH: 4. Client polish ===== */
+/* Visual only: no bindings, controllers or behaviour change in this section. */
+
+/* --- Prices: Dark Gray, weighted by importance --- */
+/* Prices were the accent purple, which put tertiary colour on every card. Dark Gray keeps the
+   brand's colour proportions (p. 24) and lets purple mean "link or active" only. */
+.mt-product-price,
+.mt-pdp-price {
+    color: var(--bsw-dark-gray);
+}
+
+.mt-product-price {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* --- One hover/focus language for cards and tiles --- */
+/* Border goes Dark Gray and a short Yellow bar appears along the bottom. The bar is an inset
+   box-shadow, so it adds no layout shift; it isn't a decorative drop shadow. Keyboard focus
+   gets the same treatment as hover, on top of the site-wide focus ring. */
+.mt-product-card,
+.mt-tile {
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.mt-product-card:hover,
+.mt-product-card:focus-within,
+.mt-tile:hover,
+.mt-tile:focus-visible {
+    border-color: var(--bsw-dark-gray);
+    box-shadow: inset 0 -4px 0 var(--bsw-yellow);
+}
+
+.mt-tile:hover .mt-tile-title,
+.mt-tile:focus-visible .mt-tile-title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+/* --- Brand icons: Dark Gray glyph over a Yellow "fractal" (pp. 59-60) --- */
+/* The fractal is a short Yellow bar with a 45-degree cut, tucked under the glyph's lower left.
+   It sits behind the glyph (isolation keeps z-index inside the icon). */
+.mt-tile-icon {
+    position: relative;
+    isolation: isolate;
+    width: 44px;
+    height: 44px;
+    color: var(--bsw-dark-gray);
+}
+
+.mt-tile-icon::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    bottom: 6px;
+    width: 26px;
+    height: 10px;
+    background: var(--bsw-yellow);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    z-index: -1;
+}
+
+/* --- Section markers: a small path before each home section label --- */
+/* A Dark Gray triangle then a Yellow segment (the one-segment path, p. 41), so sections are
+   easy to find when scanning. Decorative pseudo-element only. */
+.mt-home .mt-section > .mt-eyebrow,
+.mt-carousel-header .mt-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mt-home .mt-section > .mt-eyebrow::before,
+.mt-carousel-header .mt-eyebrow::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 40px;
+    height: 10px;
+    background:
+        linear-gradient(to bottom left, var(--bsw-dark-gray) 50%, transparent 50%) left top / 10px 10px no-repeat,
+        linear-gradient(var(--bsw-yellow), var(--bsw-yellow)) 10px top / 30px 10px no-repeat;
+}
+
+/* --- Hero type --- */
+.mt-hero {
+    padding-top: 72px;
+    padding-bottom: 72px;
+}
+
+.mt-hero h1 {
+    font-size: 46px;
+    line-height: 1.1;
+    max-width: 620px;
+}
+
+.mt-hero-sub {
+    font-size: 18px;
+    line-height: 1.5;
+    max-width: 520px;
+}
+
+@media (max-width: 991px) {
+    .mt-hero {
+        padding-top: 48px;
+        padding-bottom: 88px;
+    }
+
+    .mt-hero h1 {
+        font-size: 34px;
+    }
+
+    .mt-hero-sub {
+        font-size: 16px;
+    }
+}
+
+/* --- Empty states: a calm Light Gray panel with the path marker --- */
+.mt-orders-empty-message {
+    background: var(--bsw-light-gray);
+    padding: 18px 20px 18px 20px;
+    margin-bottom: 20px;
+    color: var(--bsw-dark-gray);
+}
+
+.mt-orders-empty-message::before,
+.mt-cart-empty-title::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 10px;
+    margin-bottom: 12px;
+    background:
+        linear-gradient(to bottom left, var(--bsw-dark-gray) 50%, transparent 50%) left top / 10px 10px no-repeat,
+        linear-gradient(var(--bsw-yellow), var(--bsw-yellow)) 10px top / 30px 10px no-repeat;
+}
+
+.mt-cart-empty-title::before {
+    margin: 0 auto 16px;
+}
+
+/* --- Header buttons: a comfortable 44px touch target everywhere --- */
+.mt-header-btn,
+.mt-search-toggle {
+    min-height: 44px;
+}
+
+/* --- Phones: the site name gets its own row --- */
+/* "Baylor Scott & White Health" as text wrapped to three lines beside the buttons. Under 480px
+   the name takes the first row on one line and the buttons sit on a second row; the mobile
+   search panel already opens below the whole header row. */
+@media (max-width: 479px) {
+    .mt-header-row {
+        flex-wrap: wrap;
+        row-gap: 8px;
+    }
+
+    .mt-brand {
+        flex: 1 1 100%;
+        white-space: nowrap;
+        font-size: 17px;
+    }
+
+    .mt-header-actions {
+        margin-left: auto;
+    }
 }

@@ -1273,6 +1273,25 @@ the brand in its own file, loaded after it (`app/css/brand-bsw.css` on BSWH):
   with sample JSON via Playwright `page.route`. Every real template and stylesheet renders,
   which is enough for screenshots, overflow checks and an axe run.
 
+### Client polish patterns (BSWH)
+
+- **Photo-less category tiles**: `.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo))`
+  targets them from the tile itself.
+  - Make them shorter (3:2) white cards with the name top-left, an arrow cue, and a path
+    ribbon drawn with the placeholder's `::before`/`::after`.
+  - On phones they become 96px list cards, since six square tiles stacked are a very long
+    scroll.
+  - A browser without `:has()` just keeps the square tile.
+- **One hover/focus language**: a Dark Gray border plus an inset 4px Yellow bottom bar
+  (`box-shadow: inset`, so no layout shift) on product cards, quick-action tiles and category
+  tiles. Use `:focus-within`/`:focus-visible` alongside `:hover`.
+- **Brand icon "fractal"**: a clipped Yellow bar behind the Font Awesome glyph, via `::before`,
+  `z-index: -1` and `isolation: isolate` on the icon box.
+- **Prices in the accent colour** put a tertiary colour on every card. Text-coloured bold
+  prices keep a brand's colour proportions.
+- **Phone header with a long text name**: under 480px, let `.mt-header-row` wrap and give
+  `.mt-brand` the full first row.
+
 ## Punchout (BSWH)
 
 Ported from Four51's Punchout overrides (Four51/CustomSolutions/Punchout); the Hertz punchout
