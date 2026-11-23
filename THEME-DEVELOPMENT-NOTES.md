@@ -1,8 +1,5 @@
 # Four51 Theme Development Notes
 
-> **This repo (BSWH):** the deploy folder is `bswh-punchout/`, which is ModernTheme's `app/`
-> renamed. Paths below that say `app/` mean `bswh-punchout/` here.
-
 Living reference for building ModernTheme-style Four51/OrderCloud storefront themes. Started
 during the ModernTheme build for Thumbprint's `gpsandbox` tenant; kept updated as we learn more
 here and on future theme projects. This is a knowledge base, not a changelog — record patterns
