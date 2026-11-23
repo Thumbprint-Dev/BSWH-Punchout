@@ -68,7 +68,7 @@
                             </div>
                             <div class="mt-minicart-actions">
                                 <a href="cart" class="mt-header-btn mt-minicart-view-btn">{{'View Cart' | r | xlat}}</a>
-                                <a href="checkout" class="mt-btn-accent mt-minicart-checkout-btn">{{'Checkout' | r | xlat}}</a>
+                                <a href="checkout" class="mt-btn-accent mt-minicart-checkout-btn" ng-if="!PunchoutUser">{{'Checkout' | r | xlat}}</a>
                             </div>
                         </div>
                     </div>
@@ -109,8 +109,9 @@
                             {{"Start" | r | xlat}} {{"New" | r | xlat}} {{"Order" | r | xlat}}
                         </a>
                     </li>
-                    <li class="divider" ng-show="user.Type!='TempCustomer' || isInGroup('TPAdmin')"></li>
-                    <li ng-show="user.Type!='TempCustomer'" class="logout">
+                    <li class="divider" ng-show="(user.Type!='TempCustomer' && !PunchoutUser) || isInGroup('TPAdmin')"></li>
+                    <!-- No Log Out for punchout users: the session belongs to their procurement system. -->
+                    <li ng-show="user.Type!='TempCustomer' && !PunchoutUser" class="logout">
                         <a href="#" class="451_btn_logout" ng-click="$event.preventDefault(); Logout()">{{'Log Out' | r | xlat}}</a>
                     </li>
                     <li ng-if="isInGroup('TPAdmin')">

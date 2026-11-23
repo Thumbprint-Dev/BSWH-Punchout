@@ -1,5 +1,8 @@
 # Four51 Theme Development Notes
 
+> **This repo (BSWH):** the deploy folder is `bswh-punchout/`, which is ModernTheme's `app/`
+> renamed. Paths below that say `app/` mean `bswh-punchout/` here.
+
 Living reference for building ModernTheme-style Four51/OrderCloud storefront themes. Started
 during the ModernTheme build for Thumbprint's `gpsandbox` tenant; kept updated as we learn more
 here and on future theme projects. This is a knowledge base, not a changelog — record patterns
@@ -1239,6 +1242,70 @@ to push the new object in as well.
   `.mt-section:has(> .mt-quick-actions)` to tighten the gap after just one particular section,
   leaving `.mt-section`'s default spacing untouched elsewhere). Modern evergreen browsers all
   support it; no fallback needed for this theme's target browsers.
+
+## A client brand layer on top of ModernTheme (learned on Baylor Scott & White Health)
+
+A client fork that should keep taking upstream fixes leaves `custom.css` untouched and puts
+the brand in its own file, loaded after it (`app/css/brand-bsw.css` on BSWH):
+
+- **Set the `--mt-color-*` variables first.** They cover most of the palette. `site.json`'s
+  `theme.accent` writes the accent inline on `<html>` and beats the file, so a fork keeps
+  that field blank and sets every colour in one place.
+- **The accent can't be a light brand colour.** It is link text on white *and* the fill
+  behind white button text. When the brand's main colour is light (BSWH Yellow is 1.7:1
+  either way), make the accent a dark brand colour. Restyle `.mt-btn-accent` separately with
+  dark text on the light fill.
+- **Corner radii and a few one-off tints are still literals in `custom.css`.** Hand-writing
+  overrides for ~150 selectors drifts on the next merge. BSWH's `tools/brand_overrides.py`
+  re-declares exactly those properties with the same selectors and `@media` context, between
+  marker comments in the brand file. Re-run it after every upstream merge. Keep the generated
+  block *above* the hand-written components, or it silently overrides them (it once put the
+  cream hero stripes back).
+- **Long company names overflow the phone header.** `.mt-brand` is `white-space: nowrap` and
+  the logo has no shrink, so a text name like "Baylor Scott & White Health" pushed the
+  account menu 120px+ off a 375px screen. Upstream has the same overflow with any long name.
+  The fix is `.mt-brand { flex: 1 1 auto; min-width: 0; white-space: normal }` under 767px.
+- **Several page and card titles are set to weight 400** (`.mt-pdp-title`,
+  `.mt-cart-summary-title`, `.mt-checkout-card-title`, ...). A brand with bold headlines has
+  to override each class; a bare `h1` rule loses to them.
+- **The viewport meta disables pinch zoom** (`maximum-scale=1.0, user-scalable=no`). That
+  fails WCAG 1.4.4 for an accessibility-bound client. BSWH drops both and sets 16px inputs on
+  phones so iOS still doesn't zoom on focus.
+- **Previewing without a live account**: run the theme through `devserver.mjs` from
+  storefront-files. It fills `<!--baseTagToken-->` for git themes. Answer `/api/<app>/*`
+  with sample JSON via Playwright `page.route`. Every real template and stylesheet renders,
+  which is enough for screenshots, overflow checks and an axe run.
+
+## Punchout (BSWH)
+
+Ported from Four51's Punchout overrides (Four51/CustomSolutions/Punchout); the Hertz punchout
+fixes are included. Gated on the `PunchoutUser` permission or the `punchoutSession.<app>`
+cookie:
+
+- `js/services/punchoutService.js`: the `Punchout` factory (session cookie, `save` →
+  `PUT order/punchout/:id`, `getForm` → `punchoutin/returnform/<template>`).
+- `Four51Ctrl.js`:
+  - Sets `PunchoutUser` on every load.
+  - Runs the landing redirect once per session. The key is the session's
+    `PunchoutBuyerCookie`, not a plain `true`, so a session closed without submitting
+    doesn't block landing on the next punch-in.
+  - Bounces `/checkout` to the cart.
+  - Skips the idle logout, since the procurement system can't sign back in.
+- `cartCtrl.js` / `cartView.html`:
+  - "Submit cart" replaces Proceed to Checkout.
+  - The post URL is read from the cookie, not behind `PunchoutUser`. That flag is set
+    asynchronously and is missing on a `/cart` reload.
+  - Any failed step re-enables the button and shows the error.
+  - The return form sits outside the cart form, since forms can't nest. AngularJS 1.2's
+    `ng-repeat` skips the `$promise`/`$resolved` keys of the `$resource` response.
+- `nav.html`, `accountNav.html`: no Log Out, and no mini-cart Checkout.
+- `faqView.html`: punchout users get "How do I place my order?" and "How do I pay?" instead
+  of the checkout answers (credit card only, payment security, sales tax, order submitted),
+  which are wrong for them.
+- `index.html` keeps the anti-clickjack script, which forces the page out of any frame. That
+  matches the live BSWH site. It means the procurement system has to open the store in its
+  own window or tab. If a buyer insists on a frame, the script and the site's Custom Response
+  Headers both have to change.
 
 ## Workflow
 

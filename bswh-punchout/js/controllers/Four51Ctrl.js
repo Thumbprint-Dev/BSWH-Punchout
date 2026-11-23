@@ -1,6 +1,9 @@
-four51.app.controller('Four51Ctrl', ['$scope', '$route', '$rootScope', '$timeout', '$document', '$window', '$location', '$451', 'User', 'Order', 'Security', 'OrderConfig', 'Category', 'AppConst','XLATService', 'GoogleAnalytics', 'FavoriteProducts', 'SiteConfig', 'publicRoutes', 'ComingSoon', 'PriceNotes', 'ComparePricing',
-function ($scope, $route, $rootScope, $timeout, $document, $window, $location, $451, User, Order, Security, OrderConfig, Category, AppConst, XLATService, GoogleAnalytics, FavoriteProducts, SiteConfig, publicRoutes, ComingSoon, PriceNotes, ComparePricing) {
+four51.app.controller('Four51Ctrl', ['$scope', '$route', '$rootScope', '$timeout', '$document', '$window', '$location', '$451', 'User', 'Order', 'Security', 'OrderConfig', 'Category', 'AppConst','XLATService', 'GoogleAnalytics', 'FavoriteProducts', 'SiteConfig', 'publicRoutes', 'ComingSoon', 'PriceNotes', 'ComparePricing', 'Punchout',
+function ($scope, $route, $rootScope, $timeout, $document, $window, $location, $451, User, Order, Security, OrderConfig, Category, AppConst, XLATService, GoogleAnalytics, FavoriteProducts, SiteConfig, publicRoutes, ComingSoon, PriceNotes, ComparePricing, Punchout) {
 	$scope.AppConst = AppConst;
+	// Punchout (punchoutService.js): the session cookie Four51 sets when a buyer punches in.
+	// PunchoutUser is set below, once the user loads, from the PunchoutUser permission.
+	$scope.PunchoutSession = Punchout.punchoutSession;
 	// On $root, like the favorites helpers below: the product card partial is ng-included, and a
 	// child scope there can't shadow a $root property.
 	$scope.$root.comingSoon = ComingSoon;
@@ -59,6 +62,25 @@ function ($scope, $route, $rootScope, $timeout, $document, $window, $location, $
 
 				if (!$scope.user.TermsAccepted)
 					$location.path('conditions');
+
+				// Punchout. PunchoutUser is resolved on every load: it drives the cart's Submit cart
+				// button and hides checkout and Log Out. The landing redirect runs once per punchout
+				// session. The live BSWH copy stored a plain 'true', so a session closed without
+				// submitting skipped the landing on every later punch-in; keying on the session's
+				// PunchoutBuyerCookie lets each new session land. It waits for terms to be accepted.
+				$scope.PunchoutUser = user.Permissions.contains('PunchoutUser');
+				var session = $scope.PunchoutSession;
+				var landingKey = (session && session.PunchoutBuyerCookie) || 'landed';
+				if ($scope.PunchoutUser && $scope.user.TermsAccepted && store.get('punchoutconfig') !== landingKey) {
+					if (session && session.PunchOutOperation == 'Edit') $location.path('cart');
+					else if (session && session.PunchoutLandingCategory) $location.path('catalog/' + session.PunchoutLandingCategory);
+					else if (session && session.PunchoutLandingProduct) $location.path('product/' + session.PunchoutLandingProduct);
+					store.set('punchoutconfig', landingKey);
+				}
+				// Punchout orders are finished in the procurement system, so checkout is off limits
+				// even by typed URL or a bookmark; the cart's Submit cart is the way out.
+				if ($scope.PunchoutUser && /^\/checkout(\/|$)/.test($location.path()))
+					$location.path('cart');
 
 				if (user.CurrentOrderID) {
 					Order.get(user.CurrentOrderID, function (ordr) {
@@ -163,6 +185,10 @@ function ($scope, $route, $rootScope, $timeout, $document, $window, $location, $
 	// the idle timer and left sitting on the page is the same broken-looking
 	// state, and more confusing for not having been asked for.
 	function LogoutByTimer(){
+		// A punchout session belongs to the buyer's procurement system, which has no way to
+		// sign back in here; the live BSWH copy removed this timer for the same reason.
+		if ($scope.PunchoutSession || $scope.PunchoutUser) return;
+
 		function goToLogin() {
 			$window.location.href = '/' + $451.apiName + '/login';
 		}

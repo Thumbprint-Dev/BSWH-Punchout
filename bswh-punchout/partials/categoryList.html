@@ -6,7 +6,7 @@
         <div class="col-sm-4 col-xs-6" ng-repeat="c in currentCategory.SubCategories">
             <a ng-href="catalog/{{c.InteropID}}" class="mt-dept-tile">
                 <img ng-if="c.Image.URL" ng-src="{{c.Image.URL}}" class="mt-placeholder-photo mt-real-photo" alt="" />
-                <div ng-if="!c.Image.URL" class="mt-placeholder-photo">{{'[category photo]' | r | xlat}}</div>
+                <div ng-if="!c.Image.URL" class="mt-placeholder-photo" aria-hidden="true"></div>
                 <p class="mt-dept-name" ng-bind-html="c.Name"></p>
             </a>
         </div>

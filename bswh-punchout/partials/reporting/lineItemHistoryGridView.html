@@ -2,7 +2,7 @@
     <div class="mt-oli-product">
         <div class="mt-oli-thumb">
             <img class="mt-real-photo" ng-show="item.Product.LargeImageUrl" ng-src="{{item.Product.LargeImageUrl | orderImageUrl}}" alt="{{item.Product.Name}}" />
-            <div class="mt-placeholder-photo" ng-hide="item.Product.LargeImageUrl">{{'[product photo]' | r | xlat}}</div>
+            <div class="mt-placeholder-photo" ng-hide="item.Product.LargeImageUrl" aria-hidden="true"></div>
         </div>
         <div class="mt-oli-info">
             <span class="mt-oli-name">{{item.Product.Name}}</span>

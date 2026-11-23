@@ -18,9 +18,7 @@
                         <loadingindicator ng-show="loadingImage && LineItem.Variant.IsMpowerVariant"></loadingindicator>
                         <img id="451_img_prod_lg" class="mt-placeholder-photo mt-real-photo mt-pdt-image" ng-src="{{LineItem.Variant.PreviewUrl || LineItem.Variant.LargeImageUrl || LineItem.Product.LargeImageUrl}}"
                              ng-show="LineItem.Variant.PreviewUrl || LineItem.Variant.LargeImageUrl || LineItem.Product.LargeImageUrl" imageonload />
-                        <div class="mt-placeholder-photo mt-pdt-image" ng-hide="LineItem.Variant.PreviewUrl || LineItem.Variant.LargeImageUrl || LineItem.Product.LargeImageUrl">
-                            {{'[product photo]' | r | xlat}}
-                        </div>
+                        <div class="mt-placeholder-photo mt-pdt-image" ng-hide="LineItem.Variant.PreviewUrl || LineItem.Variant.LargeImageUrl || LineItem.Product.LargeImageUrl" aria-hidden="true"></div>
                     </div>
                     <div class="mt-pdt-variant-actions" ng-show="LineItem.Product.Type=='VariableText' && LineItem.Variant">
                         <button ng-if="currentOrder.Status != 'AwaitingApproval' && !EditingLineItem" class="mt-header-btn" redirect="/kit/{{kitID}}/{{kitIndex}}/{{kitProductInteropID}}/{{LineItem.Variant.InteropID}}/edit">

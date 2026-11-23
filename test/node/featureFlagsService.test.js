@@ -1,4 +1,4 @@
-// Tests for app/js/services/featureFlagsService.js.
+// Tests for bswh-punchout/js/services/featureFlagsService.js.
 // Run with `make test` (or `node --test test/node/`) -- Node's built-in runner, no install.
 //
 // The service is a plain browser script that registers itself on the global `four51.app`,
@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const SOURCE = fs.readFileSync(
-	path.join(__dirname, '../../app/js/services/featureFlagsService.js'), 'utf8');
+	path.join(__dirname, '../../bswh-punchout/js/services/featureFlagsService.js'), 'utf8');
 const STORAGE_KEY = 'mt.featureFlags';
 
 function load() {

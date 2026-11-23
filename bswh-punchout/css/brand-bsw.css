@@ -1,0 +1,667 @@
+/* Baylor Scott & White Health (BSWH) brand layer for ModernTheme.
+
+   Loaded after custom.css (index.html). custom.css stays identical to ModernTheme so upstream
+   fixes merge cleanly. Everything Baylor-specific lives here:
+     1. Tokens        - the --mt-color-* variables custom.css already runs on, set to the
+                        BSWH palette (Brand Guidelines v1.0, 2023, pp. 22-32).
+     2. Base          - type, links, focus, form controls.
+     3. Components    - buttons, header, hero, tiles, pills, footer, the path motif.
+     GENERATED block  - between Base and Components: square corners and warm one-off tints,
+                        re-declared from custom.css by tools/brand_overrides.py. Don't edit it by
+                        hand. It sits above Components so the hand-written rules win.
+
+   Contrast (WCAG 2.1 AA): every text pairing below was measured. Dark Gray #364248 on white
+   10.1, on #F5F6F6 9.6, on Yellow 5.9, on Orange 4.7. Dark Purple #5F277E on white 10.1 and
+   white on it 10.1. Muted #5B666B on white 5.9, on Light Gray 5.0. BSW Yellow is never used
+   for text, and Medium Gray #959593 (3.0) only for borders and icons. */
+
+/* ===== BSWH: 1. Tokens ===== */
+:root {
+    /* BSWH palette (p. 22). */
+    --bsw-yellow: #FFB71B;
+    --bsw-orange: #FF9527;
+    --bsw-red: #D5647A;
+    --bsw-purple: #8F659C;
+    --bsw-blue: #007EB4;
+    --bsw-green: #3F9F90;
+    --bsw-dark-red: #B12943;
+    --bsw-dark-purple: #5F277E;
+    --bsw-dark-green: #156250;
+    --bsw-dark-orange: #933F10;
+    --bsw-dark-gray: #364248;
+    --bsw-medium-gray: #959593;
+    --bsw-light-gray: #ECEDED;
+    --bsw-white: #FFFFFF;
+
+    /* ModernTheme tokens -> BSWH. All copy is Dark Gray (p. 23: "all body copy"). The
+       secondary-text step is a tint of Dark Gray, not a new colour, so it stays on palette and
+       still clears 4.5:1 on every surface. */
+    --mt-color-text: var(--bsw-dark-gray);
+    --mt-color-text-strong: var(--bsw-dark-gray);
+    --mt-color-text-soft: var(--bsw-dark-gray);
+    --mt-color-muted: #5B666B;
+
+    /* Accent = links, active states, focus rings and the few filled badges. It sits behind white
+       text and is also text on white, so it needs 4.5:1 both ways - Yellow (1.7:1) can't do
+       that. Dark Purple is the guidelines' web-address colour (p. 29) and passes 10:1 both ways.
+       Yellow is used where the brand wants it: primary buttons and the path motif. */
+    --mt-color-accent: var(--bsw-dark-purple);
+    --mt-color-accent-dark: #4C1F65;
+
+    /* Surfaces: white cards on a whisper of BSW Light Gray (p. 24: mostly white space). */
+    --mt-color-bg: #F5F6F6;
+    --mt-color-white: var(--bsw-white);
+    --mt-color-border: #D7DADB;
+    --mt-color-divider: var(--bsw-light-gray);
+
+    --mt-color-danger: var(--bsw-dark-red);
+    --mt-color-warning: var(--bsw-dark-orange);
+
+    /* Sharp Sans is the brand face (p. 28) but is licensed and not hosted here; Arial is the
+       guidelines' named alternative (p. 29). If BSWH supplies web font files, add an
+       @font-face for 'Sharp Sans' above this block and it will be picked up first. */
+    --mt-font-body: 'Sharp Sans', Arial, Helvetica, sans-serif;
+
+    /* The path motif's unit: ribbon thickness and triangle size (p. 55: the triangle sets the
+       ribbon's thickness). */
+    --bsw-path-unit: 72px;
+}
+
+/* ===== BSWH: 2. Base ===== */
+/* custom.css puts the theme font on the mt- page roots and headings only (see "Font coverage"
+   in THEME-DEVELOPMENT-NOTES.md); bootstrap-451.css leaves body on Droid Sans. Arial everywhere
+   is the brand rule, so close the gap here. */
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--mt-font-body);
+}
+
+/* The page background behind short pages (login), where bootstrap-451.css's own gray showed
+   below the content. */
+body {
+    color: var(--mt-color-text);
+    background: var(--mt-color-bg);
+}
+
+/* Headlines: Sharp Sans Semibold, or Arial Bold (p. 29). Sentence case, never all caps, no
+   negative tracking (that was tuned for Inter). */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.mt-hero h1 {
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--mt-color-text-strong);
+}
+
+/* custom.css sets its page and card titles to a light 400 weight (tuned for Inter at large
+   sizes). BSWH headlines are bold. */
+.mt-pdp-title,
+.mt-plp-title-row h1,
+.mt-login-title,
+.mt-cart-empty-title,
+.mt-cart-summary-title,
+.mt-checkout-card-title,
+.mt-error-modal-title {
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+/* Eyebrows: semibold, all caps, Dark Gray (p. 29). */
+.mt-eyebrow {
+    color: var(--bsw-dark-gray);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+a {
+    color: var(--mt-color-accent);
+}
+
+a:hover,
+a:focus {
+    color: var(--mt-color-accent-dark);
+}
+
+/* One visible focus ring for every interactive element, keyboard only. Dark Purple on white is
+   10:1, and it stays visible on a yellow button. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+.mt-btn-accent:focus-visible,
+.mt-header-btn:focus-visible {
+    outline: 3px solid var(--mt-color-accent);
+    outline-offset: 2px;
+}
+
+/* Inputs: a 3:1 border so the field edge is visible (WCAG 1.4.11), and 16px text on phones so
+   iOS doesn't zoom the page on focus (pinch zoom stays available - see index.html viewport). */
+.form-control,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+    border-color: var(--bsw-medium-gray);
+}
+
+@media (max-width: 767px) {
+    .form-control,
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ===== BSWH: GENERATED by tools/brand_overrides.py - do not edit by hand ===== */
+/* Same selectors as custom.css, so these win on source order alone. */
+.mt-hero {
+    background-image: repeating-linear-gradient(120deg, #ECEDED, #ECEDED 22px, #DDE0E1 22px, #DDE0E1 44px);
+}
+.mt-hero-image:before {
+    background: linear-gradient(90deg, rgba(54,66,72,0.72), rgba(54,66,72,0.25));
+}
+.mt-btn-accent,
+.mt-search input,
+.mt-header-btn,
+.mt-account .dropdown-menu,
+.mt-sort select,
+.mt-price-schedule-toggle,
+.mt-variant-search input,
+.mt-lightbox-modal-body,
+.mt-lightbox-modal-image,
+.mt-pdt .view-form-icon .form-control,
+.mt-pdt .quantity .form-control,
+.mtv-toggle button,
+.mt-login .mt-field input,
+.mt-cart .mt-field-row input,
+.mt-cart .mt-field-row select,
+.mt-cart-item-qty .form-control,
+.mt-giftcard-form .mt-field-row input,
+.mt-checkout-coupon .mt-field-row input,
+.mt-checkout .mt-field input,
+.mt-checkout .mt-field select,
+.mt-checkout-card .form-control,
+.mt-quickadd-modal-body .view-form-icon .form-control,
+.mt-quickadd-modal-body .quantity .form-control,
+.mt-account-page .view-form-icon .form-control,
+.mt-search-form .mt-field-row input,
+.mt-error-modal,
+.mt-error-modal-close,
+.mt-verify-modal .mt-verify-option {
+    border-radius: 4px;
+}
+.mt-tile,
+.mt-placeholder-photo,
+.mt-dept-tile,
+.mt-dept-tile .mt-placeholder-photo,
+.mt-product-card,
+.mt-cat-dropdown,
+.mt-category-message,
+.mt-price-note,
+.mt-price-schedule-table,
+.mt-pdp-alert,
+.mt-variant-row,
+.mt-lightbox-image-large,
+.mt-lightbox-images a.mt-img-loading,
+.mt-lightbox-images a.mt-img-failed,
+.mt-lightbox-thumb,
+.mtv-card,
+.mtv-count,
+.mtv-primary,
+.mtv-error,
+.mtv-item,
+.mtv-thumb,
+.mtv-use,
+.mtv-cancel,
+.mtv-trash,
+.mtv-delete,
+.mtv-ack,
+.mt-login-card,
+.mt-login-alert,
+.mt-cart-item-pending,
+.mt-cart-item-photo,
+.mt-cart-item-specs,
+.mt-cart-kit-row,
+.mt-cart-summary-card,
+.mt-checkout-spendingaccount-applied,
+.mt-checkout-card,
+.mt-checkout-address-display,
+.mt-checkout-budget-balance,
+.mt-checkout-payment-warning,
+.mt-checkout-split-billing,
+.mt-kit-items,
+.mt-kit-item-row,
+.mt-kit-config-card,
+.mt-account-security-warning,
+.mt-messages-body,
+.mt-legal-body,
+.mt-legal-lead,
+.mt-faq-body,
+.mt-faq-item > summary:focus-visible,
+.mt-orders-row,
+.mt-oli-thumb,
+.mt-oli-meta,
+.mt-line-item-detail-image-wrap img,
+.mt-reports-new-menu,
+.mt-confirm-photo,
+.mt-cart-toast,
+.mt-cart-toast-photo,
+.mt-cart-toast-close,
+.mt-minicart-panel,
+.mt-minicart-item-photo {
+    border-radius: 0;
+}
+.mt-placeholder-photo {
+    background-image: repeating-linear-gradient(135deg, #ECEDED, #ECEDED 14px, #DDE0E1 14px, #DDE0E1 28px);
+}
+.mt-placeholder-photo,
+.mt-search-submit,
+.mt-search-close {
+    color: #5B666B;
+}
+.mtv-card--joined,
+.mt-order-actions.mtv-card-foot {
+    border-radius: 0 0 0 0;
+}
+.mtv-steps li.done .mtv-step-n {
+    background: #156250;
+}
+.mtv-steps li.done .mtv-step-n {
+    border-color: #156250;
+}
+.mt-pdt .mtv .input-group-addon:first-child,
+.mt-checkout-card .input-group-addon:first-child,
+.mt-addresses-search .form-control,
+.mt-reports-toolbar .input-group .form-control {
+    border-radius: 4px 0 0 4px;
+}
+.mt-pdt .mtv .input-group-addon:last-child,
+.mt-checkout-card .input-group-addon:last-child,
+.mt-addresses-search .mt-header-btn,
+.mt-reports-toolbar .input-group-btn > .mt-btn-accent {
+    border-radius: 0 4px 4px 0;
+}
+.mtv-pill,
+.mt-checkout-shipto-toggle .mt-header-btn.active,
+.mt-checkout-budget-balance,
+.mt-checkout-approval-approved td,
+.mt-kit-item-row.mt-kit-item-active,
+.mt-kit-pill-muted,
+.mt-kit-pill-warn,
+.mt-kit-pill-done,
+.mt-orders-status-pill,
+.mt-orders-status-pill-open,
+.mt-orders-status-pill-approved,
+.mt-orders-status-pill-pending,
+.mt-orders-status-pill-unsubmitted,
+.mt-orders-status-pill-declined {
+    background: #ECEDED;
+}
+.mtv-pill {
+    color: #156250;
+}
+.mt-cart-remove-link,
+.mt-cart-remove-link:hover,
+.mt-checkout-payment-warning {
+    color: #933F10;
+}
+.mt-cart-empty-icon {
+    background: rgba(95,39,126,0.08);
+}
+.mt-checkout-card .input-group-addon,
+.mt-checkout-payment-warning,
+.mt-checkout-split-billing,
+.mt-checkout-approval-declined td,
+.mt-report-table tbody tr:hover td {
+    background: #F5F6F6;
+}
+.mt-checkout-payment-warning,
+.mt-checkout-split-billing {
+    border: 1px solid #959593;
+}
+.mt-report-table tbody tr:nth-child(even) td {
+    background: #FFFFFF;
+}
+.mt-report-tabset .nav-tabs > li.disabled > a {
+    color: #959593;
+}
+.mt-error-modal-backdrop {
+    background: rgba(54,66,72,0.45);
+}
+.mt-error-modal {
+    box-shadow: 0 1px 2px rgba(54,66,72,0.06), 0 16px 40px rgba(54,66,72,0.18);
+}
+.mt-error-modal-icon {
+    background: rgba(177,41,67,0.1);
+}
+.mt-confirm-icon-neutral,
+.mt-verify-icon,
+.mt-verify-badge {
+    background: rgba(95,39,126,0.1);
+}
+.mt-btn-accent.mt-confirm-danger:hover,
+.mt-btn-accent.mt-confirm-danger:focus {
+    background: #B12943;
+}
+.mt-verify-modal .mt-verify-option.mt-verify-option-selected {
+    background: rgba(95,39,126,0.04);
+}
+.mt-cart-toast {
+    box-shadow: 0 1px 2px rgba(54,66,72,0.06), 0 12px 32px rgba(54,66,72,0.16);
+}
+.mt-header .dropdown-menu {
+    box-shadow: 0 1px 2px rgba(54,66,72,0.06), 0 12px 28px rgba(54,66,72,0.14);
+}
+@media (max-width: 767px) {
+    .mt-cart-item-photo,
+    .mt-oli-thumb,
+    .mt-oli-stats {
+        border-radius: 0;
+    }
+}
+@media (max-width: 991px) {
+    .mt-cart-side {
+        box-shadow: 0 -1px 0 var(--mt-color-border), 0 -8px 20px rgba(54,66,72,0.06);
+    }
+    .mt-orders-row {
+        border-radius: 0;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    .mt-order-detail-totals {
+        border-radius: 0;
+    }
+}
+/* ===== BSWH: END GENERATED ===== */
+
+/* ===== BSWH: 3. Components ===== */
+
+/* --- Buttons --- */
+/* Primary: BSW Yellow with Dark Gray text (5.9:1), Orange on hover (4.7:1). White text on
+   yellow fails (1.7:1), so this is the only accessible way to make the main action yellow. */
+.mt-btn-accent,
+.mt-btn-accent:visited {
+    background: var(--bsw-yellow);
+    color: var(--bsw-dark-gray);
+    font-weight: 700;
+}
+
+.mt-btn-accent:hover,
+.mt-btn-accent:focus {
+    background: var(--bsw-orange);
+    color: var(--bsw-dark-gray);
+}
+
+/* Disabled: a plain gray state instead of a half-transparent yellow, so it reads as "not yet"
+   rather than as a washed-out version of the main action. */
+.mt-btn-accent[disabled],
+.mt-btn-accent[disabled]:hover,
+.mt-btn-accent[disabled]:focus {
+    background: var(--bsw-light-gray);
+    color: var(--mt-color-muted);
+    opacity: 1;
+}
+
+/* Secondary: white with a Dark Gray outline. */
+.mt-header-btn {
+    border-color: var(--bsw-dark-gray);
+    color: var(--bsw-dark-gray);
+    font-weight: 700;
+}
+
+.mt-header-btn:hover,
+.mt-header-btn:focus {
+    background: var(--bsw-light-gray);
+    color: var(--bsw-dark-gray);
+}
+
+/* --- Header --- */
+/* A yellow rule under the header: the brand colour at the top of every page without
+   competing with the content. */
+.mt-header {
+    border-bottom: 4px solid var(--bsw-yellow);
+}
+
+.mt-brand {
+    letter-spacing: 0;
+}
+
+/* Logo clear space is 50% of the symbol's height (p. 18); 12px top and bottom keeps it clear
+   of the yellow rule and the header edge. Minimum width is 153px (p. 19). */
+.mt-brand-logo {
+    height: 56px;
+    min-width: 153px;
+    margin: 12px 0;
+}
+
+/* Phones: "Baylor Scott & White Health" as text (no logo set in Four51) didn't wrap, so the
+   header ran 120px+ past the screen edge and the account menu fell off it. Upstream ModernTheme
+   has the same overflow with any long company name. Let the name wrap and shrink, and tighten
+   the row. */
+@media (max-width: 767px) {
+    .mt-header-row {
+        gap: 10px;
+        padding: 10px 16px;
+        max-height: none;
+    }
+
+    .mt-brand {
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: normal;
+        font-size: 16px;
+        line-height: 1.2;
+    }
+
+    .mt-brand-logo {
+        height: 40px;
+        min-width: 0;
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .mt-header-actions {
+        flex: 0 0 auto;
+        gap: 6px;
+    }
+}
+
+/* --- The path (pp. 41-48) --- */
+/* Colour segments joined by Dark Gray right triangles. Built from CSS backgrounds on
+   pseudo-elements, so it is pure decoration with nothing for a screen reader to find.
+   Rules kept: at least one Yellow segment and one triangle, no colour twice, triangles always
+   Dark Gray, never tertiary colours, segments meet at 90 degrees, a segment that runs off the
+   page needs no end cap. */
+
+/* Home hero: Yellow comes down the right side, turns at a triangle, and Purple runs off the
+   right edge (the "path components" figure, p. 41). */
+.mt-hero {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bsw-white);
+    background-image: none;
+    border-bottom: 1px solid var(--mt-color-divider);
+}
+
+.mt-hero:not(.mt-hero-image)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: calc(var(--bsw-path-unit) * 3);
+    pointer-events: none;
+    background:
+        linear-gradient(var(--bsw-yellow), var(--bsw-yellow)) left top / var(--bsw-path-unit) calc(100% - var(--bsw-path-unit)) no-repeat,
+        linear-gradient(to bottom left, var(--bsw-dark-gray) 50%, transparent 50%) left bottom / var(--bsw-path-unit) var(--bsw-path-unit) no-repeat,
+        linear-gradient(var(--bsw-purple), var(--bsw-purple)) right bottom / calc(100% - var(--bsw-path-unit)) var(--bsw-path-unit) no-repeat;
+}
+
+/* Keep the copy clear of the path. */
+.mt-hero:not(.mt-hero-image) > .mt-container {
+    padding-right: calc(var(--bsw-path-unit) * 3 + 24px);
+}
+
+.mt-hero-sub {
+    color: var(--bsw-dark-gray);
+}
+
+/* A photo hero (site.json hero.image) gets a Dark Gray scrim instead of the warm one. */
+.mt-hero-image:before {
+    background: linear-gradient(90deg, rgba(54, 66, 72, 0.78), rgba(54, 66, 72, 0.3));
+}
+
+@media (max-width: 991px) {
+    .mt-hero {
+        padding-bottom: 88px;
+    }
+
+    /* Below desktop the path drops to the bottom edge: a triangle then Yellow running off the
+       right (the one-segment path, p. 41). */
+    .mt-hero:not(.mt-hero-image)::after {
+        top: auto;
+        left: 0;
+        width: auto;
+        height: 24px;
+        background:
+            linear-gradient(to bottom left, var(--bsw-dark-gray) 50%, transparent 50%) left top / 24px 24px no-repeat,
+            linear-gradient(var(--bsw-yellow), var(--bsw-yellow)) 24px top / 100% 24px no-repeat;
+    }
+
+    .mt-hero:not(.mt-hero-image) > .mt-container {
+        padding-right: 15px;
+    }
+}
+
+/* Footer: a Yellow segment comes in from the left edge and turns at a Dark Gray triangle, like
+   the bottom band of the guidelines' slide templates (p. 68). It replaces the hairline. */
+.mt-footer {
+    border-top: 1px solid var(--mt-color-divider);
+    padding-top: 0;
+}
+
+.mt-footer::before {
+    content: '';
+    display: block;
+    width: calc(33.333% + 16px);
+    height: 16px;
+    margin: -1px 0 16px;
+    background:
+        linear-gradient(var(--bsw-yellow), var(--bsw-yellow)) left top / calc(100% - 16px) 16px no-repeat,
+        linear-gradient(to top right, var(--bsw-dark-gray) 50%, transparent 50%) right top / 16px 16px no-repeat;
+}
+
+.mt-footer-line,
+.mt-footer-line a {
+    color: var(--mt-color-muted);
+}
+
+/* --- Category tiles --- */
+/* Square, per the brand's geometry. With a photo, a Dark Gray fade behind the name keeps it
+   readable on any image (the theme relied on a text-shadow alone). */
+.mt-dept-tile .mt-real-photo + .mt-dept-name {
+    background: linear-gradient(to top, rgba(54, 66, 72, 0.85), rgba(54, 66, 72, 0));
+    text-shadow: none;
+    padding-top: 48px;
+}
+
+/* No photo uploaded: a Light Gray tile with a short path in its top-right corner (a segment
+   running off the edge, turning at a Dark Gray triangle) and the name in Dark Gray. The segment
+   colour steps through the brand's secondary colours so neighbouring tiles differ; Blue is left
+   out, as the guidelines ask for it to be used most sparingly (p. 23). Drawn with the
+   placeholder's two pseudo-elements, which custom.css positions inside the tile. */
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) {
+    --bsw-tile-seg: var(--bsw-yellow);
+    background: var(--bsw-light-gray);
+}
+
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::before,
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 28px;
+}
+
+/* The segment, running off the tile's right edge. */
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::before {
+    right: 0;
+    width: 40%;
+    background: var(--bsw-tile-seg);
+}
+
+/* The turn: a right triangle against the segment's left end, dark half touching it. */
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::after {
+    right: 40%;
+    width: 28px;
+    background: linear-gradient(to bottom right, transparent 50%, var(--bsw-dark-gray) 50%);
+}
+
+.row > :nth-child(5n+2) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-orange); }
+.row > :nth-child(5n+3) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-purple); }
+.row > :nth-child(5n+4) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-green); }
+.row > :nth-child(5n+5) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-red); }
+
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) + .mt-dept-name {
+    color: var(--bsw-dark-gray);
+    text-shadow: none;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+/* Missing product photos elsewhere: a Light Gray box with a centred picture icon (Font Awesome
+   fa-picture-o) instead of the theme's "[product photo]" text. */
+.mt-placeholder-photo:not(.mt-real-photo) {
+    background: var(--bsw-light-gray);
+}
+
+.mt-placeholder-photo:not(.mt-real-photo)::before {
+    content: '\f03e';
+    font-family: FontAwesome;
+    font-size: 28px;
+    color: var(--bsw-medium-gray);
+}
+
+/* --- Quick-action tiles and cards --- */
+.mt-tile-icon {
+    color: var(--bsw-dark-gray);
+}
+
+.mt-tile:hover {
+    border-color: var(--bsw-dark-gray);
+}
+
+/* --- Cart badge --- */
+/* A Yellow badge with Dark Gray text, so the cart count reads as part of the brand rather
+   than a purple notification dot. */
+.mt-cart-badge {
+    background: var(--bsw-yellow);
+    color: var(--bsw-dark-gray);
+}
+
+/* --- Punchout --- */
+.mt-punchout-help {
+    margin-top: 10px;
+    color: var(--mt-color-muted);
+}

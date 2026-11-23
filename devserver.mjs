@@ -19,7 +19,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url))
-const APP_DIR = path.join(ROOT, 'app')
+const APP_DIR = path.join(ROOT, 'bswh-punchout')
 
 // This theme is deployed to many storefronts, so the site it serves is not
 // pinned in code. Highest wins: --upstream, then SITE_URL from the environment
@@ -92,7 +92,7 @@ function parseArgs(argv) {
 const USAGE = `
 Usage: node devserver.mjs [options]
 
-Serves app/ as the ${SITE.name} storefront and proxies the API to the real server.
+Serves bswh-punchout/ as the ${SITE.name} storefront and proxies the API to the real server.
 
 Options:
   -p, --port <n>       Port to listen on (default 3000)

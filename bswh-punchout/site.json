@@ -1,7 +1,7 @@
 {
 	"_readme": "Template for a site's own site.json. Every option is listed, and every optional feature is off or blank until you fill it in. To launch a new site, copy this whole file into that site's site.json override and change only what the site needs. Blank values fall back to the theme/platform defaults. Keys starting with _ are notes and are ignored. true/false values go without quotes. See THEME-DEVELOPMENT-NOTES.md, 'Per-site branding: app/site.json'.",
 	"_help_name": "name: the site's name - the browser tab title and the logo's alt text before anyone signs in. Blank uses the company name once a user loads.",
-	"name": "",
+	"name": "Baylor Scott & White Health",
 	"_help_favicon": "favicon: full URL of the browser tab icon (.png or .ico). Blank keeps the platform's own icon.",
 	"favicon": "",
 	"logo": {
@@ -27,9 +27,9 @@
 	"hero": {
 		"_help": "The home page banner. image: full URL of the background image (blank: a beige striped placeholder pattern). eyebrow: the small line above the heading. heading, subheading: the banner text - replace the sample wording below; a blank value shows the theme's sample wording. showButton: true or false, without quotes - the call-to-action button. buttonText: its label. buttonHref: where it goes, e.g. catalog/category-interopid.",
 		"image": "",
-		"eyebrow": "Fall 2026 Collection",
-		"heading": "Gear your team for the season ahead.",
-		"subheading": "New apparel, drinkware and print kits, priced for your group.",
+		"eyebrow": "Baylor Scott & White Health",
+		"heading": "Find what your team needs",
+		"subheading": "Add items to your cart, then send it back to your purchasing system to finish your order.",
 		"showButton": false,
 		"buttonText": "Shop the collection",
 		"buttonHref": "catalog"

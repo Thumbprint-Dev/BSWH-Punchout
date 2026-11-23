@@ -39,7 +39,21 @@
 
             <div class="mt-faq-group">
                 <h2 class="mt-faq-group-title">After the order</h2>
-                <details class="mt-faq-item">
+                <!-- Punchout users (BSWH) finish orders in their purchasing system, so they get these
+                     instead of the checkout answers below, which are hidden for them. -->
+                <details class="mt-faq-item" ng-if="PunchoutUser">
+                    <summary>How do I place my order?</summary>
+                    <div class="mt-faq-answer">
+                        <p>Add what you need to your cart, then select Submit cart. Your cart goes back to your purchasing system, where you finish and submit the order.</p>
+                    </div>
+                </details>
+                <details class="mt-faq-item" ng-if="PunchoutUser">
+                    <summary>How do I pay for my order?</summary>
+                    <div class="mt-faq-answer">
+                        <p>Payment and approval happen in your purchasing system after you submit your cart. You won't enter payment details on this site.</p>
+                    </div>
+                </details>
+                <details class="mt-faq-item" ng-if="!PunchoutUser">
                     <summary>How do I know if my order was submitted?</summary>
                     <div class="mt-faq-answer">
                         <p>After each order is placed, an acknowledgement email is sent to the email address associated with your account.</p>
@@ -69,19 +83,19 @@
                         <p>Our return policy is located at <a href="https://thumbprint.com/return-policy-and-limited-warranty/" target="_blank" rel="noopener">Return Policy</a>.</p>
                     </div>
                 </details>
-                <details class="mt-faq-item">
+                <details class="mt-faq-item" ng-if="!PunchoutUser">
                     <summary>What payment methods do you accept?</summary>
                     <div class="mt-faq-answer">
                         <p>Our payment terms are Credit Card only (Visa, Mastercard, American Express, or Discover).</p>
                     </div>
                 </details>
-                <details class="mt-faq-item">
+                <details class="mt-faq-item" ng-if="!PunchoutUser">
                     <summary>Is my payment information secure?</summary>
                     <div class="mt-faq-answer">
                         <p>Yes, your payment information is completely safe. Credit card payments are processed in strict compliance with PCI-DSS standards, which is the universal security benchmark for transmitting and protecting sensitive financial data during online transactions.</p>
                     </div>
                 </details>
-                <details class="mt-faq-item">
+                <details class="mt-faq-item" ng-if="!PunchoutUser">
                     <summary>How is sales tax calculated?</summary>
                     <div class="mt-faq-answer">
                         <p>Sales tax rates vary significantly by state, county, and city. We use a specialized, certified third-party tax integration to ensure accuracy.</p>

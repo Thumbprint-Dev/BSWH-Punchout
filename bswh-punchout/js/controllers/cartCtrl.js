@@ -1,5 +1,5 @@
-four51.app.controller('CartViewCtrl', ['$scope', '$rootScope', '$routeParams', '$location', '$451', '$timeout', 'Order', 'OrderConfig', 'User', 'ConfirmModal',
-function ($scope, $rootScope, $routeParams, $location, $451, $timeout, Order, OrderConfig, User, ConfirmModal) {
+four51.app.controller('CartViewCtrl', ['$scope', '$rootScope', '$routeParams', '$location', '$451', '$timeout', '$sce', '$window', 'Order', 'OrderConfig', 'User', 'ConfirmModal', 'Punchout',
+function ($scope, $rootScope, $routeParams, $location, $451, $timeout, $sce, $window, Order, OrderConfig, User, ConfirmModal, Punchout) {
 	$scope.isEditforApproval = $routeParams.id != null && $scope.user.Permissions.contains('EditApprovalOrder');
 	if ($scope.isEditforApproval) {
 		Order.get($routeParams.id, function(order) {
@@ -195,6 +195,48 @@ function ($scope, $rootScope, $routeParams, $location, $451, $timeout, Order, Or
 					$scope.displayLoadingIndicator = false;
 				}
 			);
+		});
+	};
+
+	// Punchout: "Submit cart" sends the cart back to the buyer's procurement system instead of
+	// going through checkout. The post URL comes from the session cookie, not from PunchoutUser:
+	// that flag is set in Four51Ctrl's async User.get, so it isn't there yet when /cart is
+	// reloaded and the live BSWH copy's return form posted nowhere (fixed the same way on Hertz).
+	var punchoutSession = Punchout.punchoutSession;
+	if (punchoutSession && punchoutSession.PunchOutPostURL) {
+		$scope.punchouturl = $sce.trustAsResourceUrl(punchoutSession.PunchOutPostURL);
+	}
+	$scope.submitPunchoutOrder = function() {
+		if (!$scope.punchouturl) {
+			$scope.errorMessage = 'Your punchout session has ended. Return to your purchasing system and punch out again.';
+			return;
+		}
+		$scope.submitClicked = true;
+		$scope.errorMessage = null;
+		// Any failure re-enables the button so the shopper can retry. The live copy went
+		// through saveChanges(), which never calls back on a failed save, so the button stayed
+		// stuck on "Sending" after an error.
+		function failed(ex) {
+			$scope.errorMessage = (ex && ex.Message) || 'We couldn\'t send your cart. Please try again.';
+			$scope.submitClicked = false;
+			$scope.displayLoadingIndicator = false;
+		}
+		$scope.displayLoadingIndicator = true;
+		OrderConfig.address($scope.currentOrder, $scope.user);
+		cleanDate(function() {
+			Order.save($scope.currentOrder, function(order) {
+				$scope.currentOrder = order;
+				Punchout.save(order.ID, function() {
+					Punchout.getForm(function(form) {
+						$scope.punchoutForm = form;
+						// One tick for the hidden inputs to render before posting.
+						$timeout(function() {
+							store.remove('punchoutconfig');
+							$window.document.getElementById('punchoutForm').submit();
+						}, 10);
+					}, failed);
+				}, failed);
+			}, failed);
 		});
 	};
 

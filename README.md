@@ -1,3 +1,27 @@
+# Baylor Scott & White Health punchout storefront
+
+This is Thumbprint's ModernTheme, branded for Baylor Scott & White Health (BSWH) and set up for
+punchout from BSWH's procurement system.
+
+- **Four51 Git File Deployment:**
+  - Repository: this repo.
+  - Deployment Sub Folder: **`bswh-punchout`** (ModernTheme's `app/`, renamed so it's unique).
+  - Branch: `master`.
+  - Deploy on the test site first.
+- **Brand:** `bswh-punchout/css/brand-bsw.css`, loaded after `custom.css`. Leave `custom.css`
+  as ModernTheme ships it. After merging ModernTheme updates, run
+  `python3 tools/brand_overrides.py` to refresh the generated block in the brand file.
+- **Site settings:** `bswh-punchout/site.json` holds the name and home banner copy. The logo
+  comes from the BSWH company in Four51.
+- **Punchout:** see "Punchout (BSWH)" in `THEME-DEVELOPMENT-NOTES.md`.
+  - Four51 needs a punchout template on the buyer company, and the `PunchoutUser` permission
+    on the punchout users' group.
+  - The procurement system must open the store in its own window or tab, not inside a frame.
+- **Upstream:** ModernTheme is the `upstream` remote. Merge `upstream/master` to pick up theme
+  fixes; git follows the `app/` → `bswh-punchout/` rename.
+
+---
+
 ![](https://github.com/Four51/Four51StorefrontWiki/blob/master/Four51StorefrontLogo.png?raw=true)
 # Four51Storefront (formerly AngularJSOrder)
 > This repository provides the app code needed for the Four51 Storefront Application

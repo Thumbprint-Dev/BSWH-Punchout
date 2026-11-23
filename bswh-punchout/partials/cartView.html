@@ -32,9 +32,7 @@
                     <div class="mt-cart-list">
                         <div class="mt-cart-item" ng-class="{'mt-cart-item-pending': item.IsKitParent && item.KitIsInvalid}" ng-repeat="item in currentOrder.LineItems">
                             <img class="mt-cart-item-photo mt-real-photo" ng-show="item.Variant.LargeImageUrl || item.Product.SmallImageUrl" ng-src="{{item.Variant.LargeImageUrl || item.Product.SmallImageUrl}}" />
-                            <div class="mt-placeholder-photo mt-cart-item-photo" ng-hide="item.Variant.LargeImageUrl || item.Product.SmallImageUrl">
-                                {{'[product photo]' | r | xlat}}
-                            </div>
+                            <div class="mt-placeholder-photo mt-cart-item-photo" ng-hide="item.Variant.LargeImageUrl || item.Product.SmallImageUrl" aria-hidden="true"></div>
 
                             <div class="mt-cart-item-info">
                                 <a class="mt-cart-item-link" ng-if="currentOrder.Status != 'AwaitingApproval' || isEditforApproval" ng-href="{{(item.Product.Type == 'Kit' ? 'kit' : 'cart') + '/' + (item.Product.InteropID) + '/' + (isEditforApproval ? (currentOrder.ID + '/') : '') + ($index)}}">
@@ -165,10 +163,20 @@
                             <p>{{note.message}}</p>
                         </div>
 
-                        <button type="button" class="mt-btn-accent mt-cart-checkout-btn" ng-click="checkOut()" ng-disabled="cart.$invalid || kitValidation">
+                        <button type="button" class="mt-btn-accent mt-cart-checkout-btn" ng-if="!PunchoutUser" ng-click="checkOut()" ng-disabled="cart.$invalid || kitValidation">
                             <i ng-show="cart.$invalid || kitValidation" class="fa fa-warning"></i>
                             {{'Proceed to Checkout' | r | xlat}}
                         </button>
+
+                        <!-- Punchout: the cart goes back to the buyer's procurement system, which handles
+                             shipping, payment and approval. CartViewCtrl.submitPunchoutOrder saves the order,
+                             marks it as a punchout order and posts #punchoutForm below. -->
+                        <button type="button" class="mt-btn-accent mt-cart-checkout-btn" ng-if="PunchoutUser" ng-click="submitPunchoutOrder()" ng-disabled="cart.$invalid || kitValidation || submitClicked" aria-describedby="mt-punchout-help">
+                            <i ng-show="(cart.$invalid || kitValidation) && !submitClicked" class="fa fa-warning" aria-hidden="true"></i>
+                            <span ng-if="!submitClicked">{{'Submit cart' | r | xlat}}</span>
+                            <span ng-if="submitClicked">{{'Sending your cart…' | r | xlat}}</span>
+                        </button>
+                        <p id="mt-punchout-help" class="mt-pdp-meta mt-punchout-help" ng-if="PunchoutUser">{{'This sends your cart back to your purchasing system, where you finish the order.' | r | xlat}}</p>
 
                         <button type="button" neworder ng-if="user.Permissions.contains('MultipleShoppingCart') && currentOrder" class="mt-header-btn mt-cart-neworder-btn" ng-click="newOrderLoadingIndicator = true;startNewOrder()">
                             <loadingindicator ng-show="newOrderLoadingIndicator"></loadingindicator>
@@ -210,6 +218,12 @@
                     </ul>
                 </div>
             </div>
+        </form>
+        <!-- Punchout return form. Outside the cart form, since forms can't nest. Its fields are the
+             cXML/OCI values Four51's punchoutin/returnform gives back, posted to the buyer's
+             PunchOutPostURL. -->
+        <form id="punchoutForm" method="POST" action="{{punchouturl}}" ng-if="punchouturl" class="hidden" aria-hidden="true">
+            <input type="hidden" ng-repeat="(key, val) in punchoutForm" name="{{key}}" value="{{val}}">
         </form>
     </div>
     <mt-error-modal message="errorMessage"></mt-error-modal>

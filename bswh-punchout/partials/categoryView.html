@@ -19,7 +19,7 @@
             <div class="{{deptTileClass}}" ng-repeat="dept in shopByCategories">
                 <a ng-href="catalog/{{dept.InteropID}}" class="mt-dept-tile">
                     <img ng-if="dept.Image.URL" ng-src="{{dept.Image.URL}}" class="mt-placeholder-photo mt-real-photo" alt="" />
-                    <div ng-if="!dept.Image.URL" class="mt-placeholder-photo">{{'[lifestyle photo]' | r | xlat}}</div>
+                    <div ng-if="!dept.Image.URL" class="mt-placeholder-photo" aria-hidden="true"></div>
                     <p class="mt-dept-name" ng-bind-html="dept.Name"></p>
                 </a>
             </div>

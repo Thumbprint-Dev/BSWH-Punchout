@@ -9,9 +9,7 @@
 			<div class="col-md-5">
 				<div class="mt-pdt-image-wrap">
 					<img id="451_img_prod_lg" class="mt-placeholder-photo mt-real-photo mt-pdt-image" ng-src="{{Kit.KitParent.LargeImageUrl}}" ng-show="Kit.KitParent.LargeImageUrl" imageonload />
-					<div class="mt-placeholder-photo mt-pdt-image" ng-hide="Kit.KitParent.LargeImageUrl">
-						{{'[product photo]' | r | xlat}}
-					</div>
+					<div class="mt-placeholder-photo mt-pdt-image" ng-hide="Kit.KitParent.LargeImageUrl" aria-hidden="true"></div>
 				</div>
 
 				<div class="mt-kit-items">
