@@ -577,91 +577,105 @@ textarea {
     color: var(--mt-color-muted);
 }
 
-/* --- Category tiles --- */
-/* Square, per the brand's geometry. With a photo, a Dark Gray fade behind the name keeps it
-   readable on any image (the theme relied on a text-shadow alone). */
-.mt-dept-tile .mt-real-photo + .mt-dept-name {
-    background: linear-gradient(to top, rgba(54, 66, 72, 0.85), rgba(54, 66, 72, 0));
-    text-shadow: none;
-    padding-top: 48px;
-}
-
-/* No photo uploaded: a white card, shorter than a photo tile, with the category name as a
-   headline, an arrow cue, and a path ribbon along the bottom: a segment in the tile's colour
-   comes in from the left edge and turns at a Dark Gray triangle. On hover or keyboard focus the
-   ribbon runs further and the border darkens. The segment colour steps through the brand's
-   secondary colours so neighbouring tiles differ; Blue is left out, as the guidelines ask for
-   it to be used most sparingly (p. 23).
-   :has() picks out no-photo tiles from the tile itself. A browser without it keeps the square
-   tile with the same ribbon. */
-.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)) {
+/* --- Category tiles: one card design, with or without an image --- */
+/* Every tile is the same white 3:2 card: the category name as a headline top-left, an arrow cue
+   bottom-right, and a path ribbon along the bottom (a segment in the tile's colour coming in
+   from the left edge and turning at a Dark Gray triangle). A category image from the Four51
+   admin (usually an icon) sits above the name at a fixed height, uncropped, so an icon tile and
+   a no-image tile line up in the same grid. Before this, an uploaded image turned the tile into
+   a square full-bleed photo with white text, which broke the row. On hover or keyboard focus
+   the ribbon runs further and the border darkens. The segment colour steps through the brand's
+   secondary colours; Blue is left out, as the guidelines ask for it to be used most sparingly
+   (p. 23). The ribbon and arrow are the tile's own pseudo-elements, so they work the same with
+   or without an image. */
+.mt-dept-tile {
+    --bsw-tile-seg: var(--bsw-yellow);
+    --bsw-ribbon: 14px;
     aspect-ratio: 3 / 2;
     border: 1px solid var(--mt-color-border);
     background: var(--bsw-white);
     transition: border-color 160ms ease;
 }
 
-.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):hover,
-.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):focus-visible {
+.mt-dept-tile:hover,
+.mt-dept-tile:focus-visible {
     border-color: var(--bsw-dark-gray);
 }
 
-.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) {
-    --bsw-tile-seg: var(--bsw-yellow);
-    --bsw-ribbon: 14px;
-    background: var(--bsw-white);
-}
+.row > :nth-child(5n+2) > .mt-dept-tile { --bsw-tile-seg: var(--bsw-orange); }
+.row > :nth-child(5n+3) > .mt-dept-tile { --bsw-tile-seg: var(--bsw-purple); }
+.row > :nth-child(5n+4) > .mt-dept-tile { --bsw-tile-seg: var(--bsw-green); }
+.row > :nth-child(5n+5) > .mt-dept-tile { --bsw-tile-seg: var(--bsw-red); }
 
-.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::before,
-.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::after {
+/* The ribbon: the segment, then the triangle at its end (cut the same way as the footer's). */
+.mt-dept-tile::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    height: var(--bsw-ribbon);
-}
-
-/* The segment, running in from the tile's left edge. */
-.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::before {
     left: 0;
-    width: 55%;
-    background: var(--bsw-tile-seg);
+    bottom: 0;
+    z-index: 2;
+    width: calc(55% + var(--bsw-ribbon));
+    height: var(--bsw-ribbon);
+    background:
+        linear-gradient(to top right, var(--bsw-dark-gray) 50%, transparent 50%) right top / var(--bsw-ribbon) var(--bsw-ribbon) no-repeat,
+        linear-gradient(var(--bsw-tile-seg), var(--bsw-tile-seg)) left top / calc(100% - var(--bsw-ribbon)) 100% no-repeat;
     transition: width 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* The turn: a right triangle against the segment's end, cut the same way as the footer's. */
-.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo)::after {
-    left: 55%;
-    width: var(--bsw-ribbon);
-    background: linear-gradient(to top right, var(--bsw-dark-gray) 50%, transparent 50%);
-    transition: left 240ms cubic-bezier(0.16, 1, 0.3, 1);
+.mt-dept-tile:hover::before,
+.mt-dept-tile:focus-visible::before {
+    width: calc(75% + var(--bsw-ribbon));
 }
 
-.mt-dept-tile:hover .mt-placeholder-photo:not(.mt-real-photo)::before,
-.mt-dept-tile:focus-visible .mt-placeholder-photo:not(.mt-real-photo)::before {
-    width: 75%;
+/* The arrow cue. */
+.mt-dept-tile::after {
+    content: '\f061';
+    font-family: FontAwesome;
+    position: absolute;
+    right: 22px;
+    bottom: 30px;
+    z-index: 2;
+    font-size: 16px;
+    color: var(--bsw-dark-gray);
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.mt-dept-tile:hover .mt-placeholder-photo:not(.mt-real-photo)::after,
-.mt-dept-tile:focus-visible .mt-placeholder-photo:not(.mt-real-photo)::after {
-    left: 75%;
+.mt-dept-tile:hover::after,
+.mt-dept-tile:focus-visible::after {
+    transform: translateX(4px);
 }
 
-/* No zoom on a tile with nothing to zoom. */
-.mt-dept-tile:hover .mt-placeholder-photo:not(.mt-real-photo),
-.mt-dept-tile:focus-visible .mt-placeholder-photo:not(.mt-real-photo) {
+/* No image: the placeholder is just the white card face. */
+.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) {
+    background: var(--bsw-white);
+}
+
+/* An image from the admin: shown whole at a fixed height, top-left, above the name. No zoom. */
+.mt-dept-tile .mt-placeholder-photo.mt-real-photo {
+    top: 22px;
+    left: 24px;
+    right: auto;
+    bottom: auto;
+    width: auto;
+    max-width: calc(100% - 48px);
+    height: 56px;
+    padding: 0;
+    background: none;
+    object-fit: contain;
+    object-position: left top;
+}
+
+.mt-dept-tile:hover .mt-placeholder-photo,
+.mt-dept-tile:focus-visible .mt-placeholder-photo {
     transform: none;
 }
 
-.row > :nth-child(5n+2) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-orange); }
-.row > :nth-child(5n+3) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-purple); }
-.row > :nth-child(5n+4) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-green); }
-.row > :nth-child(5n+5) > .mt-dept-tile .mt-placeholder-photo { --bsw-tile-seg: var(--bsw-red); }
-
-/* The name sits top-left as a headline; the arrow cue sits bottom-right above the ribbon. */
-.mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) + .mt-dept-name {
+/* The name: a Dark Gray headline top-left (below the image when there is one). */
+.mt-dept-tile .mt-dept-name {
     top: 0;
     bottom: auto;
-    padding: 22px 24px;
+    padding: 22px 56px 22px 24px;
+    background: none;
     color: var(--bsw-dark-gray);
     text-shadow: none;
     font-size: 20px;
@@ -669,38 +683,37 @@ textarea {
     line-height: 1.25;
 }
 
-.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo))::after {
-    content: '\f061';
-    font-family: FontAwesome;
-    position: absolute;
-    right: 22px;
-    bottom: 30px;
-    font-size: 16px;
-    color: var(--bsw-dark-gray);
-    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+.mt-dept-tile .mt-real-photo + .mt-dept-name {
+    padding-top: 92px;
 }
 
-/* Phones: one tile per row, so make no-photo tiles compact list cards instead of tall blocks. */
+/* Phones: one tile per row, so tiles become compact 96px list cards (image on the left). */
 @media (max-width: 767px) {
-    .mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)) {
+    .mt-dept-tile {
         aspect-ratio: auto;
         height: 96px;
         margin: 0 0 12px;
     }
 
-    .mt-dept-tile .mt-placeholder-photo:not(.mt-real-photo) + .mt-dept-name {
+    .mt-dept-tile .mt-dept-name {
         padding: 18px 56px 18px 20px;
         font-size: 18px;
     }
 
-    .mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo))::after {
+    .mt-dept-tile .mt-placeholder-photo.mt-real-photo {
+        top: 18px;
+        left: 20px;
+        height: 44px;
+        max-width: 64px;
+    }
+
+    .mt-dept-tile .mt-real-photo + .mt-dept-name {
+        padding: 26px 56px 18px 100px;
+    }
+
+    .mt-dept-tile::after {
         bottom: 36px;
     }
-}
-
-.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):hover::after,
-.mt-dept-tile:has(> .mt-placeholder-photo:not(.mt-real-photo)):focus-visible::after {
-    transform: translateX(4px);
 }
 
 /* Missing product photos elsewhere: a Light Gray box with a centred picture icon (Font Awesome
@@ -779,27 +792,13 @@ textarea {
     text-underline-offset: 3px;
 }
 
-/* --- Brand icons: Dark Gray glyph over a Yellow "fractal" (pp. 59-60) --- */
-/* The fractal is a short Yellow bar with a 45-degree cut, tucked under the glyph's lower left.
-   It sits behind the glyph (isolation keeps z-index inside the icon). */
+/* --- Quick-action icons: plain Dark Gray --- */
+/* An earlier pass put the guidelines' Yellow "fractal" behind these icons. Trevor found it
+   too much repeated on every tile, so they're plain Dark Gray icons now. */
 .mt-tile-icon {
-    position: relative;
-    isolation: isolate;
     width: 44px;
     height: 44px;
     color: var(--bsw-dark-gray);
-}
-
-.mt-tile-icon::before {
-    content: '';
-    position: absolute;
-    left: 2px;
-    bottom: 6px;
-    width: 26px;
-    height: 10px;
-    background: var(--bsw-yellow);
-    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-    z-index: -1;
 }
 
 /* --- Section markers: a small path before each home section label --- */
