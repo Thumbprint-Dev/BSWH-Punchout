@@ -578,7 +578,7 @@ textarea {
 }
 
 /* --- Category tiles: one card design, with or without an image --- */
-/* Every tile is the same white 3:2 card: the category name as a headline top-left, an arrow cue
+/* Every tile is the same white card, 190px tall: the category name as a headline top-left, an arrow cue
    bottom-right, and a path ribbon along the bottom (a segment in the tile's colour coming in
    from the left edge and turning at a Dark Gray triangle). A category image from the Four51
    admin (usually an icon) sits above the name at a fixed height, uncropped, so an icon tile and
@@ -587,11 +587,17 @@ textarea {
    the ribbon runs further and the border darkens. The segment colour steps through the brand's
    secondary colours; Blue is left out, as the guidelines ask for it to be used most sparingly
    (p. 23). The ribbon and arrow are the tile's own pseudo-elements, so they work the same with
-   or without an image. */
+   or without an image.
+   Logo note: Four51 serves .svg files from the git app with no Content-Type, and browsers won't
+   show an SVG in an <img> without image/svg+xml, so site.json points at a PNG render of the
+   logo (css/images/bsw-logo.png, 3x). */
 .mt-dept-tile {
     --bsw-tile-seg: var(--bsw-yellow);
     --bsw-ribbon: 14px;
-    aspect-ratio: 3 / 2;
+    /* A fixed height, not a 3:2 shape: with only a few categories the grid uses wide columns,
+       and 3:2 made each tile hundreds of pixels tall. */
+    aspect-ratio: auto;
+    height: 190px;
     border: 1px solid var(--mt-color-border);
     background: var(--bsw-white);
     transition: border-color 160ms ease;

@@ -6,7 +6,7 @@
 	"favicon": "css/images/bsw-favicon.ico",
 	"logo": {
 		"_help": "url: full URL of the nav logo, for sites whose company logo isn't set in Four51. alt: its alt text. Blank uses the company logo.",
-		"url": "css/images/bsw-logo.svg",
+		"url": "css/images/bsw-logo.png",
 		"alt": "Baylor Scott & White Health"
 	},
 	"address": {
