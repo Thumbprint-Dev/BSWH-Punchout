@@ -450,9 +450,9 @@ textarea {
 /* Logo clear space is 50% of the symbol's height (p. 18); 12px top and bottom keeps it clear
    of the yellow rule and the header edge. Minimum width is 153px (p. 19). */
 .mt-brand-logo {
-    height: 56px;
+    height: 44px;
     min-width: 153px;
-    margin: 12px 0;
+    margin: 10px 0;
 }
 
 /* Phones: "Baylor Scott & White Health" as text (no logo set in Four51) didn't wrap, so the
@@ -475,8 +475,8 @@ textarea {
     }
 
     .mt-brand-logo {
-        height: 40px;
-        min-width: 0;
+        height: 34px;
+        min-width: 153px;
         max-width: 100%;
         margin: 0;
     }
@@ -904,5 +904,104 @@ textarea {
 
     .mt-header-actions {
         margin-left: auto;
+    }
+}
+
+/* --- Hero photo (site.json hero.image) framed by the path --- */
+/* The theme lays a hero photo under the copy with a dark scrim and white text. For BSWH the
+   photo sits beside the copy instead, on the right, with no scrim over the people. A path
+   strip runs along its bottom edge: a Dark Gray triangle, then Yellow off the right edge
+   ("the path used to frame photography", p. 44). The copy stays Dark Gray on white.
+   The photo URL arrives as an inline background-image on .mt-hero (ngStyle). The hero hides
+   its own copy of it (background-size 0) and the ::before box shows it with `inherit`, so
+   nothing in the template or service changes. */
+.mt-hero.mt-hero-image {
+    --bsw-frame: 24px;
+    background-color: var(--bsw-white);
+    background-size: 0 0;
+    background-repeat: no-repeat;
+}
+
+.mt-hero.mt-hero-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: var(--bsw-frame);
+    left: 52%;
+    background: none;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center 35%;
+    background-repeat: no-repeat;
+}
+
+.mt-hero.mt-hero-image::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 52%;
+    height: var(--bsw-frame);
+    pointer-events: none;
+    background:
+        linear-gradient(to top right, var(--bsw-dark-gray) 50%, transparent 50%) left top / var(--bsw-frame) var(--bsw-frame) no-repeat,
+        linear-gradient(var(--bsw-yellow), var(--bsw-yellow)) var(--bsw-frame) top / 100% var(--bsw-frame) no-repeat;
+}
+
+/* Copy back to Dark Gray on white (the theme turns it white for its scrimmed photo). */
+.mt-hero.mt-hero-image .mt-eyebrow,
+.mt-hero.mt-hero-image h1,
+.mt-hero.mt-hero-image .mt-hero-sub {
+    color: var(--bsw-dark-gray);
+}
+
+.mt-hero.mt-hero-image h1,
+.mt-hero.mt-hero-image .mt-hero-sub {
+    max-width: 44%;
+}
+
+.mt-hero.mt-hero-image {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+}
+
+.mt-hero.mt-hero-image > .mt-container {
+    width: 100%;
+}
+
+/* Below desktop: the photo on top at full width, the copy underneath, the frame strip along
+   the photo's bottom edge. */
+@media (max-width: 991px) {
+    .mt-hero.mt-hero-image {
+        --bsw-photo: 240px;
+        display: block;
+        min-height: 0;
+        padding-top: calc(var(--bsw-photo) + var(--bsw-frame) + 32px);
+        padding-bottom: 40px;
+    }
+
+    .mt-hero.mt-hero-image::before {
+        left: 0;
+        bottom: auto;
+        height: var(--bsw-photo);
+    }
+
+    .mt-hero.mt-hero-image::after {
+        top: var(--bsw-photo);
+        bottom: auto;
+        left: 0;
+    }
+
+    .mt-hero.mt-hero-image h1,
+    .mt-hero.mt-hero-image .mt-hero-sub {
+        max-width: none;
+    }
+}
+
+@media (max-width: 479px) {
+    .mt-hero.mt-hero-image {
+        --bsw-photo: 200px;
     }
 }

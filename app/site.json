@@ -3,11 +3,11 @@
 	"_help_name": "name: the site's name - the browser tab title and the logo's alt text before anyone signs in. Blank uses the company name once a user loads.",
 	"name": "Baylor Scott & White Health",
 	"_help_favicon": "favicon: full URL of the browser tab icon (.png or .ico). Blank keeps the platform's own icon.",
-	"favicon": "",
+	"favicon": "css/images/bsw-favicon.ico",
 	"logo": {
 		"_help": "url: full URL of the nav logo, for sites whose company logo isn't set in Four51. alt: its alt text. Blank uses the company logo.",
-		"url": "",
-		"alt": ""
+		"url": "css/images/bsw-logo.svg",
+		"alt": "Baylor Scott & White Health"
 	},
 	"address": {
 		"_help_showQuickAddress": "showQuickAddress: true or false, without quotes. true shows the Quick Address (Google address lookup) field on checkout's New Address form and the Addresses page. It needs a Google Maps key that allows this site's domain - without one the field only shows an error, so leave it false until that's set up.",
@@ -26,7 +26,7 @@
 	},
 	"hero": {
 		"_help": "The home page banner. image: full URL of the background image (blank: a beige striped placeholder pattern). eyebrow: the small line above the heading. heading, subheading: the banner text - replace the sample wording below; a blank value shows the theme's sample wording. showButton: true or false, without quotes - the call-to-action button. buttonText: its label. buttonHref: where it goes, e.g. catalog/category-interopid.",
-		"image": "",
+		"image": "css/images/bsw-hero.webp",
 		"eyebrow": "Baylor Scott & White Health",
 		"heading": "Find what your team needs",
 		"subheading": "Add items to your cart, then send it back to your purchasing system to finish your order.",
